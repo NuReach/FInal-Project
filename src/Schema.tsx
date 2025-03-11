@@ -7,3 +7,11 @@ export interface Product {
   discountPercentage?: number;
   imageUrl: string;
 }
+
+export interface Collection {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  imageUrl: string;
+}

@@ -10,7 +10,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Link
       to={`/product/${product.id}`}
-      className=" rounded-lg p-3 cursor-pointer"
+      className=" rounded-lg p-3 cursor-pointer text-xs md:text-lg"
     >
       <img className="rounded-lg" src={product.imageUrl} alt={product.name} />
 

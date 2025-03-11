@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 import { YouMightLikeSection } from "../components/ui/YouMightLike";
@@ -62,14 +63,16 @@ export default function ProductDetail() {
               alt="User"
               className="w-10 h-10 rounded-full"
             />
-            <div>
-              <p className="font-semibold">
-                Hong Nnureach <span className="text-green-500">✔</span>
-              </p>
-              <p className="text-sm text-gray-500">
-                Check out more from this user
-              </p>
-            </div>
+            <Link to={`/user/profile/1`}>
+              <div>
+                <p className="font-semibold">
+                  Hong Nnureach <span className="text-green-500">✔</span>
+                </p>
+                <p className="text-sm text-gray-500">
+                  Check out more from this user
+                </p>
+              </div>
+            </Link>
           </div>
           <button className="mt-6 bg-[#A8BBA3] text-white py-2 text-sm  px-12 rounded-full">
             Add to Cart

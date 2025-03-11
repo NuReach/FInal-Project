@@ -4,13 +4,13 @@ import { ProductCard } from "./ProductCard";
 import { Product } from "../../Schema";
 
 interface ProductListProps {
+  title: string;
   products: Product[];
 }
-
-const ProductList: React.FC<ProductListProps> = ({ products }) => {
+const ProductList: React.FC<ProductListProps> = ({ title, products }) => {
   return (
     <div className="flex flex-col justify-center items-center">
-      <Heading className="text-[#A8BBA3] uppercase" text="Top Swapping" />
+      <Heading className="text-[#A8BBA3] uppercase" text={title} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mt-6 gap-9 md:px-12 ">
         {products.map((product, index) => (
           <ProductCard key={index} product={product} />
@@ -66,7 +66,7 @@ export const TopSwappingSection: React.FC = () => {
 
   return (
     <div className="p-3 md:p-6">
-      <ProductList products={products} />
+      <ProductList title="Top Swap" products={products} />
     </div>
   );
 };
