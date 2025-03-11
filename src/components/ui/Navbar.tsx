@@ -3,7 +3,7 @@ import Heading2 from "./Heading2";
 
 export default function Navbar() {
   return (
-    <div className="flex justify-between p-3 items-center px-24">
+    <div className=" hidden md:flex justify-between p-3 items-center px-24">
       <Link to={`/`}>
         <Heading2 text="Ecoswap" />
       </Link>
@@ -19,6 +19,7 @@ export default function Navbar() {
           width="18"
           height="18"
           viewBox="0 0 24 24"
+          className="hover:cursor-pointer"
         >
           <path
             fill="currentColor"
@@ -32,22 +33,26 @@ export default function Navbar() {
         />
       </div>
       <div className="flex gap-3">
+        <Link to={`/cart`}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            className="cursor-pointer"
+          >
+            <path
+              fill="currentColor"
+              d="M5.525 21q-.675 0-1.2-.413T3.6 19.525l-2.55-9.25Q.925 9.8 1.213 9.4T2 9h4.75l4.4-6.55q.125-.2.35-.325T11.975 2t.475.125t.35.325L17.2 9H22q.5 0 .788.4t.162.875l-2.55 9.25q-.2.65-.725 1.063t-1.2.412zM12 17q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9.175 9H14.8l-2.825-4.2z"
+            />
+          </svg>
+        </Link>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"
           viewBox="0 0 24 24"
-        >
-          <path
-            fill="currentColor"
-            d="M5.525 21q-.675 0-1.2-.413T3.6 19.525l-2.55-9.25Q.925 9.8 1.213 9.4T2 9h4.75l4.4-6.55q.125-.2.35-.325T11.975 2t.475.125t.35.325L17.2 9H22q.5 0 .788.4t.162.875l-2.55 9.25q-.2.65-.725 1.063t-1.2.412zM12 17q.825 0 1.413-.587T14 15t-.587-1.412T12 13t-1.412.588T10 15t.588 1.413T12 17M9.175 9H14.8l-2.825-4.2z"
-          />
-        </svg>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
+          className="cursor-pointer"
         >
           <path
             fill="currentColor"
