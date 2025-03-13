@@ -1,4 +1,5 @@
 import { CollectionList } from "../components/ui/CollectionList";
+import Feedback from "../components/ui/Feedback";
 import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 import { ProductList } from "../components/ui/ProductList";
@@ -98,6 +99,9 @@ export default function UserProfile() {
         </div>
         <div className="mt-3 md:mt-6">
           <ProductList title="Swapping" products={products} />
+        </div>
+        <div>
+          <Feedback />
         </div>
       </section>
       <Footer />
