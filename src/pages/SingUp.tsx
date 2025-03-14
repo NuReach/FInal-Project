@@ -14,7 +14,10 @@ import {
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import Heading2 from "../components/ui/Heading2";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import supabase from "../supabaseClient";
+import { toast } from "react-toastify";
 
 const formSchema = z
   .object({
@@ -37,14 +40,55 @@ export default function SignUpPage() {
     },
   });
   const today = new Date().toLocaleDateString();
+  const navigate = useNavigate();
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  const { mutateAsync: signUpMutation, isPending } = useMutation({
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (error) {
+        throw error;
+      }
+      const { user } = data;
+      if (user) {
+        const { error: roleError } = await supabase.from("user_roles").insert([
+          {
+            user_id: user.id,
+            role: "user", // Assign the default role 'user' to the newly registered user
+          },
+        ]);
+
+        if (roleError) {
+          throw new Error(roleError.message); // Throw error if role insertion fails
+        }
+      }
+      return { user };
+    },
+    onSuccess: () => {
+      navigate(`/signin`);
+      toast.success("You registered successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Something went wrong! Please try again.");
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const { email, password } = values;
+    await signUpMutation({ email, password });
   }
 
   return (
     <div className="flex h-screen">
-      <div className="flex flex-col greenBgColor justify-center items-start px-24 w-full">
+      <div className=" hidden lg:flex flex-col greenBgColor justify-center items-start px-24 w-full">
         <Heading text="Ecoswap" />
         <div className="w-[600px] mt-3">
           <Description
@@ -121,7 +165,11 @@ Users can purchase goods using a unique point-based system, where 1 dollar is eq
               )}
             />
 
-            <Button type="submit" className="w-full blueBgColor text-sm ">
+            <Button
+              disabled={isPending}
+              type="submit"
+              className="w-full blueBgColor text-sm "
+            >
               Sign Up
             </Button>
             <div className="w-full h-[1px] bg-gray-300"></div>

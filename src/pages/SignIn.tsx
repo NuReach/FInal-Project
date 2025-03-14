@@ -14,18 +14,15 @@ import {
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import Heading2 from "../components/ui/Heading2";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import supabase from "../supabaseClient";
+import { toast } from "react-toastify";
 
-const formSchema = z
-  .object({
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"], // Shows error under confirm password field
-  });
+const formSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 export default function SignInPage() {
   const form = useForm({
@@ -36,14 +33,48 @@ export default function SignInPage() {
     },
   });
   const today = new Date().toLocaleDateString();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const { mutateAsync: signInMutation, isPending } = useMutation({
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      navigate(`/`); // Redirect to dashboard after login
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      toast.success("Sign in successful!");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Invalid email or password. Try again.");
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const { email, password } = values;
     console.log(values);
+
+    await signInMutation({ email, password });
   }
 
   return (
     <div className="flex h-screen">
-      <div className="flex flex-col greenBgColor justify-center items-start px-24 w-full">
+      <div className="hidden lg:flex flex-col greenBgColor justify-center items-start px-24 w-full">
         <Heading text="Ecoswap" />
         <div className="w-[600px] mt-3">
           <Description
@@ -100,7 +131,11 @@ Users can purchase goods using a unique point-based system, where 1 dollar is eq
               )}
             />
 
-            <Button type="submit" className="w-full blueBgColor text-sm ">
+            <Button
+              disabled={isPending}
+              type="submit"
+              className="w-full blueBgColor text-sm "
+            >
               Sign In
             </Button>
             <div className="w-full h-[1px] bg-gray-300"></div>

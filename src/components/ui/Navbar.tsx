@@ -1,10 +1,19 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Heading2 from "./Heading2";
+import { Button } from "./button";
+import useAuth from "../../service/useAuth";
+import useSignOut from "../../service/useSignOut";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data } = useAuth();
+  console.log(data);
 
+  const { mutateAsync: signOutMutation } = useSignOut();
+  const handleSignOut = async () => {
+    await signOutMutation();
+  };
   return (
     <nav className="w-full bg-white shadow">
       {/* Desktop Navbar */}
@@ -67,11 +76,40 @@ export default function Navbar() {
             </svg>
           </Link>
         </div>
-
-        <Link to={`/add_coint`} className="flex gap-2">
-          <p>100</p>
-          <p>Coins</p>
-        </Link>
+        {data?.user && (
+          <Link to={`/add_coint`} className="flex gap-2">
+            <p>100</p>
+            <p>Coins</p>
+          </Link>
+        )}
+        {data?.user ? (
+          <div className="flex gap-3 items-center">
+            <Link to={`/dashboard/${data.user?.id}`} className="flex gap-2">
+              <Button>Dashboard</Button>
+            </Link>
+            <div onClick={handleSignOut}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M9 2h9c1.1 0 2 .9 2 2v16c0 1.1-.9 2-2 2H9c-1.1 0-2-.9-2-2v-2h2v2h9V4H9v2H7V4c0-1.1.9-2 2-2"
+                />
+                <path
+                  fill="currentColor"
+                  d="M10.09 15.59L11.5 17l5-5l-5-5l-1.41 1.41L12.67 11H3v2h9.67z"
+                />
+              </svg>
+            </div>
+          </div>
+        ) : (
+          <Link to={`/signin`} className="flex gap-2">
+            <Button>Sign In</Button>
+          </Link>
+        )}
       </div>
 
       {/* Mobile Navbar */}

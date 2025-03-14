@@ -8,6 +8,7 @@ import Footer from "../components/ui/Footer";
 import { CollectionList } from "../components/ui/CollectionList";
 import { ProductList } from "../components/ui/ProductList";
 import { Collection, Product } from "../Schema";
+import useAuth from "../service/useAuth";
 
 const courseSchema = z.object({
   id: z.number(),
@@ -33,6 +34,9 @@ const fetchCourses = async () => {
 };
 
 function Home() {
+  const { data, isLoading } = useAuth();
+  console.log(data, isLoading);
+
   const { data: courses } = useQuery<z.infer<typeof courseSchema>[]>({
     queryKey: ["courses"], // Unique key for caching
     queryFn: fetchCourses, // Query function to fetch data

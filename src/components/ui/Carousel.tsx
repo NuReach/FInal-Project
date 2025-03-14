@@ -8,16 +8,16 @@ export default function Carousel() {
       <div className="flex flex-col gap-6 p-9">
         <Heading
           text="Find Products That Matches Your Style"
-          className="text-black w-[440px] uppercase"
+          className="text-black w-full md:w-[440px] uppercase"
         />
         <Description
-          className="text-gray-600 mt-3 max-w-96"
+          className="text-gray-600 mt-3 w-full md:max-w-96"
           text="Users can purchase goods using a unique point-based system, where 1 dollar is equivalent to 100 EcoCoins."
         />
         <Button className="greenBgColor rounded-full mt-3 px-9 text-xs w-36">
           Shop Now
         </Button>
-        <div className="flex py-6 gap-9">
+        <div className="flex py-6 gap-9 flex-wrap">
           <Stat number="200" label="Brands" />
           <Stat number="2,000" label="Secondhand Products" />
           <Stat number="10,000" label="Happy Customers" />
@@ -26,7 +26,7 @@ export default function Carousel() {
       <img
         src="https://vetazi.com/wp-content/uploads/2024/01/trendy-fashionable-couple-posingss-about-683x1024.webp"
         alt="img"
-        className="object-cover h-[600px] "
+        className=" object-cover lg:h-[600px] "
       />
     </div>
   );
