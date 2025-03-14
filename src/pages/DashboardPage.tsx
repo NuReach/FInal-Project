@@ -1,49 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
-import supabase from "../supabaseClient";
-import { z } from "zod";
-import Navbar from "../components/ui/Navbar";
-import Carousel from "../components/ui/Carousel";
-import CategorySection from "../components/ui/CategorySection";
-import Footer from "../components/ui/Footer";
 import { CollectionList } from "../components/ui/CollectionList";
+import Footer from "../components/ui/Footer";
+import { HistorySection } from "../components/ui/HistorySection";
+import Navbar from "../components/ui/Navbar";
 import { ProductList } from "../components/ui/ProductList";
+import StatsSection from "../components/ui/StatCard";
 import { Collection, Product } from "../Schema";
 
-const courseSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  description: z.string().optional(),
-  price: z.number(),
-  created_at: z.string(),
-});
-
-console.log(courseSchema);
-
-const fetchCourses = async () => {
-  const { data, error } = await supabase
-    .from("assets") // Replace 'users' with your table name
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data;
-};
-
-function Home() {
-  const { data: courses } = useQuery<z.infer<typeof courseSchema>[]>({
-    queryKey: ["courses"], // Unique key for caching
-    queryFn: fetchCourses, // Query function to fetch data
-  });
-  console.log(courses);
-
+export default function DashboardPage() {
   return (
     <div>
       <Navbar />
-      <Carousel />
       <section className="p-3 md:px-24 md:py-12">
+        <StatsSection />
+        <HistorySection />
         <div className="mt-3 md:mt-6">
           <CollectionList title="Collection" collections={collections} />
         </div>
@@ -51,13 +20,10 @@ function Home() {
           <ProductList title="Swapping" products={products} />
         </div>
       </section>
-      <CategorySection />
       <Footer />
     </div>
   );
 }
-
-export default Home;
 
 const collections: Collection[] = [
   {

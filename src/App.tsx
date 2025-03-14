@@ -7,6 +7,7 @@ import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import UserProfile from "./pages/UserProfile";
 import AddCoinPage from "./pages/AddCoinPage";
+import DashboardPage from "./pages/DashboardPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/user/profile/:user_id" element={<UserProfile />} />
         <Route path="/add_coint" element={<AddCoinPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/signup" element={<SingUp />} />
         <Route path="/signin" element={<SignInPage />} />
       </Routes>
