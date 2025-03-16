@@ -8,7 +8,6 @@ import useSignOut from "../../service/useSignOut";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { data } = useAuth();
-  console.log(data);
 
   const { mutateAsync: signOutMutation } = useSignOut();
   const handleSignOut = async () => {
@@ -87,7 +86,7 @@ export default function Navbar() {
             <Link to={`/dashboard/${data.user?.id}`} className="flex gap-2">
               <Button>Dashboard</Button>
             </Link>
-            <div onClick={handleSignOut}>
+            <div className="hover:cursor-pointer" onClick={handleSignOut}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="32"

@@ -9,6 +9,8 @@ import UserProfile from "./pages/UserProfile";
 import AddCoinPage from "./pages/AddCoinPage";
 import DashboardPage from "./pages/DashboardPage";
 import { ToastContainer } from "react-toastify";
+import DashboardProductPage from "./pages/DashboardProductPage";
+import CreateProductPage from "./pages/CreateProductPage";
 
 function App() {
   return (
@@ -20,6 +22,11 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/user/profile/:user_id" element={<UserProfile />} />
+        <Route path="/dashboard/products" element={<DashboardProductPage />} />
+        <Route
+          path="/dashboard/create/product"
+          element={<CreateProductPage />}
+        />
         <Route path="/add_coint" element={<AddCoinPage />} />
         <Route path="/dashboard/:user_id" element={<DashboardPage />} />
         <Route path="/signup" element={<SingUp />} />
