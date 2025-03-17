@@ -103,6 +103,7 @@ export default function CreateProductPage() {
             price: values.price,
             discount: values.discount,
             status: values.status,
+            type: values.type,
             description: values.description,
             category: values.category,
             stock: values.stock,
@@ -207,6 +208,31 @@ export default function CreateProductPage() {
 
             <FormField
               control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Product">Product</SelectItem>
+                      <SelectItem value="Collection">Collection</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="status"
               render={({ field }) => (
                 <FormItem>
@@ -223,7 +249,7 @@ export default function CreateProductPage() {
                     <SelectContent>
                       <SelectItem value="Available">Available</SelectItem>
                       <SelectItem value="Out of Stock">Out of Stock</SelectItem>
-                      <SelectItem value="Discontinued">Discontinued</SelectItem>
+                      <SelectItem value="Discontinued">Unavailable</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

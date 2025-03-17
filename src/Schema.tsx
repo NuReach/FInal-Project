@@ -33,7 +33,11 @@ export const productCreateSchema = z.object({
     .min(0, { message: "Discount cannot be negative" })
     .max(100, { message: "Discount cannot exceed 100%" }),
 
-  status: z.enum(["Available", "Out of Stock", "Discontinued"], {
+  type: z.enum(["Product", "Collection"], {
+    required_error: "Type is required",
+  }),
+
+  status: z.enum(["Available", "Out of Stock", "Unavailable"], {
     required_error: "Status is required",
   }),
 
@@ -113,11 +117,13 @@ export const updateProductSchema = z.object({
     .max(100, { message: "Discount cannot exceed 100%" })
     .optional(),
 
-  status: z
-    .enum(["Available", "Out of Stock", "Discontinued"], {
-      required_error: "Status is required",
-    })
-    .optional(),
+  type: z.enum(["Product", "Collection"], {
+    required_error: "Type is required",
+  }),
+
+  status: z.enum(["Available", "Out of Stock", "Unavailable"], {
+    required_error: "Status is required",
+  }),
 
   description: z
     .string()
