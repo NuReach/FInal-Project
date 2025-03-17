@@ -23,18 +23,22 @@ import { Textarea } from "../components/ui/textarea";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import supabase from "../supabaseClient";
-import { error } from "console";
+import useAuth from "../service/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateProductPage() {
+  const { data: auth } = useAuth();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [subImagePreviews, setSubImagePreviews] = useState<(string | null)[]>([
     null,
     null,
     null,
   ]);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof productCreateSchema>>({
     resolver: zodResolver(productCreateSchema),
@@ -46,8 +50,7 @@ export default function CreateProductPage() {
       description: "",
       category: "",
       stock: 0,
-      image: undefined,
-      subImages: [undefined, undefined, undefined],
+      image_url: undefined,
       condition: 0,
       brand: "",
       usage: "",
@@ -55,115 +58,79 @@ export default function CreateProductPage() {
     },
   });
 
+  const uploadImage = async (file: File | string) => {
+    if (typeof file === "string") {
+      return file; // If it's already a URL, return it
+    }
+
+    const fileName = `${Date.now()}-${file.name}`; // Generate unique filename
+    const { error } = await supabase.storage
+      .from("product-images")
+      .upload(fileName, file);
+
+    if (error) throw error;
+
+    // Correctly access publicUrl from the data object
+    const { data } = supabase.storage
+      .from("product-images")
+      .getPublicUrl(fileName);
+    return data.publicUrl; // Access the publicUrl from data
+  };
+
+  const uploadImages = async (productId: string, images: (File | string)[]) => {
+    return Promise.all(
+      images.map(async (image) => {
+        const imageUrl = await uploadImage(image);
+        const { error } = await supabase
+          .from("product_images")
+          .insert([{ product_id: productId, image_url: imageUrl }]);
+        if (error) throw error;
+      })
+    );
+  };
+
   const { mutateAsync: createProductMutation, isPending } = useMutation({
-    mutationFn: async ({
-      name,
-      price,
-      discount,
-      status,
-      description,
-      category,
-      stock,
-      condition,
-      brand,
-      usage,
-      other_message,
-      image,
-      subImages,
-    }: {
-      name: string;
-      price: number;
-      discount: number;
-      status: string;
-      description?: string;
-      category: string;
-      stock: number;
-      condition: number;
-      brand: string;
-      usage: string;
-      other_message?: string;
-      image: File;
-      subImages: File[];
-    }) => {
-      if (!image || subImages.length !== 3) {
-        toast.error("Main image and exactly 3 sub-images are required.");
-        throw new Error("Image validation failed.");
-      }
-
-      const uploadedFilePaths: string[] = [];
-
-      const uploadImage = async (file: File, path: string) => {
-        const { data, error } = await supabase.storage
-          .from("product-images") // Your Supabase bucket name
-          .upload(path, file);
-
-        if (error) throw new Error(`Failed to upload ${file.name}`);
-
-        uploadedFilePaths.push(data.path); // Track uploaded files
-
-        return supabase.storage.from("product-images").getPublicUrl(data.path)
-          .data.publicUrl;
-      };
-
-      try {
-        // Upload main image
-        const mainImagePath = `products/${Date.now()}_${image.name}`;
-        const mainImageUrl = await uploadImage(image, mainImagePath);
-
-        // Upload sub-images
-        const subImageUrls = await Promise.all(
-          subImages.map((file, index) =>
-            uploadImage(
-              file,
-              `products/${Date.now()}_sub_${index}_${file.name}`
-            )
-          )
-        );
-
-        // Insert product into database
-        const { data, error: insertError } = await supabase
-          .from("products")
-          .insert({
-            name,
-            price,
-            discount,
-            status,
-            description,
-            category,
-            stock,
-            condition,
-            brand,
-            usage,
-            other_message,
+    mutationFn: async (values: z.infer<typeof productCreateSchema>) => {
+      const mainImageUrl = values.image_url
+        ? await uploadImage(values.image_url)
+        : null;
+      const { data, error } = await supabase
+        .from("products")
+        .insert([
+          {
+            user_id: auth?.user?.id,
+            name: values.name,
+            price: values.price,
+            discount: values.discount,
+            status: values.status,
+            description: values.description,
+            category: values.category,
+            stock: values.stock,
+            condition: values.condition,
+            brand: values.brand,
+            usage: values.usage,
+            other_message: values.other_message,
             image_url: mainImageUrl,
-            sub_images: subImageUrls, // Save array of sub-image URLs
-          });
+          },
+        ])
+        .select()
+        .single();
 
-        console.log(error);
+      if (error) throw error;
 
-        if (insertError) throw new Error("Failed to create product.");
-
-        return data;
-      } catch (error) {
-        console.error(error);
-        toast.error(
-          error instanceof Error ? error.message : "Something went wrong!"
-        );
-
-        // Rollback: Delete uploaded images if product creation fails
-        await Promise.all(
-          uploadedFilePaths.map(async (path) => {
-            await supabase.storage.from("product-images").remove([path]);
-          })
-        );
-
-        throw error;
+      if (values.sub_images && values.sub_images.length > 0) {
+        await uploadImages(data.id, values.sub_images);
       }
+
+      return data;
     },
     onSuccess: () => {
       form.reset();
       setImagePreview(null);
+      setSubImagePreviews([]);
       toast.success("Product created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["user-products"] });
+      navigate(`/dashboard/products`);
     },
     onError: (error: Error) => {
       console.error("Error creating product:", error.message);
@@ -174,12 +141,12 @@ export default function CreateProductPage() {
   const onSubmit = async (values: z.infer<typeof productCreateSchema>) => {
     await createProductMutation(values);
   };
+
   return (
     <div>
       <Navbar />
       <div className="max-w-2xl mx-auto p-6">
         <h2 className="text-2xl font-semibold mb-4">Create Product</h2>
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -206,6 +173,7 @@ export default function CreateProductPage() {
                     <FormControl>
                       <input
                         type="number"
+                        min={1}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
@@ -225,6 +193,7 @@ export default function CreateProductPage() {
                     <FormControl>
                       <input
                         type="number"
+                        min={0}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         {...field}
                         onChange={(e) => field.onChange(Number(e.target.value))}
@@ -304,6 +273,7 @@ export default function CreateProductPage() {
                   <FormLabel>Stock Quantity</FormLabel>
                   <FormControl>
                     <input
+                      min={1}
                       type="number"
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       {...field}
@@ -323,6 +293,7 @@ export default function CreateProductPage() {
                   <FormControl>
                     <input
                       type="number"
+                      min={0}
                       className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
@@ -379,7 +350,7 @@ export default function CreateProductPage() {
             />
             <FormField
               control={form.control}
-              name="image"
+              name="image_url"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Image</FormLabel>
@@ -409,44 +380,46 @@ export default function CreateProductPage() {
                 </FormItem>
               )}
             />
-            {subImagePreviews.map((preview, index) => (
-              <FormField
-                key={index}
-                control={form.control}
-                name={`subImages.${index}` as `subImages.${number}`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sub Image {index + 1}</FormLabel>
-                    <FormControl>
-                      <>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const updatedPreviews = [...subImagePreviews];
-                              updatedPreviews[index] =
-                                URL.createObjectURL(file);
-                              setSubImagePreviews(updatedPreviews);
-                              field.onChange(file);
-                            }
-                          }}
-                        />
-                        {preview && (
-                          <img
-                            src={preview}
-                            alt={`Sub Image ${index + 1} Preview`}
-                            className="mt-4 w-full max-w-xs rounded border"
+            <div className="flex gap-3">
+              {subImagePreviews.map((preview, index) => (
+                <FormField
+                  key={index}
+                  control={form.control}
+                  name={`sub_images.${index}` as `sub_images.${number}`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sub Image {index + 1}</FormLabel>
+                      <FormControl>
+                        <>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const updatedPreviews = [...subImagePreviews];
+                                updatedPreviews[index] =
+                                  URL.createObjectURL(file);
+                                setSubImagePreviews(updatedPreviews);
+                                field.onChange(file);
+                              }
+                            }}
                           />
-                        )}
-                      </>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ))}
+                          {preview && (
+                            <img
+                              src={preview}
+                              alt={`Sub Image ${index + 1} Preview`}
+                              className="mt-4 w-full max-w-xs rounded border"
+                            />
+                          )}
+                        </>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              ))}
+            </div>
 
             <Button disabled={isPending} type="submit">
               Create Product

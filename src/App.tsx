@@ -11,6 +11,7 @@ import DashboardPage from "./pages/DashboardPage";
 import { ToastContainer } from "react-toastify";
 import DashboardProductPage from "./pages/DashboardProductPage";
 import CreateProductPage from "./pages/CreateProductPage";
+import UpdateProductPage from "./pages/UpdateProductPage";
 
 function App() {
   return (
@@ -26,6 +27,10 @@ function App() {
         <Route
           path="/dashboard/create/product"
           element={<CreateProductPage />}
+        />
+        <Route
+          path="/dashboard/product/edit/:id"
+          element={<UpdateProductPage />}
         />
         <Route path="/add_coint" element={<AddCoinPage />} />
         <Route path="/dashboard/:user_id" element={<DashboardPage />} />
