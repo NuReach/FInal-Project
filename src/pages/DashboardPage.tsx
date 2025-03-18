@@ -4,6 +4,7 @@ import { HistorySection } from "../components/ui/HistorySection";
 import Navbar from "../components/ui/Navbar";
 import { ProductList } from "../components/ui/ProductList";
 import StatsSection from "../components/ui/StatCard";
+import { TransactionSection } from "../components/ui/Transaction";
 import { Collection, Product } from "../Schema";
 
 export default function DashboardPage() {
@@ -13,6 +14,7 @@ export default function DashboardPage() {
       <section className="p-3 md:px-24 md:py-12">
         <StatsSection />
         <HistorySection />
+        <TransactionSection />
         <div className="mt-3 md:mt-6">
           <CollectionList title="Collection" collections={collections} />
         </div>

@@ -183,7 +183,7 @@ Users can purchase goods using a unique point-based system, where 1 dollar is eq
               Sign Up
             </Button>
             <div className="w-full h-[1px] bg-gray-300"></div>
-            <Button className="w-full">
+            {/* <Button className="w-full">
               <div className="flex justify-center items-center gap-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -215,7 +215,7 @@ Users can purchase goods using a unique point-based system, where 1 dollar is eq
 
                 <p>Or sign in with Google</p>
               </div>
-            </Button>
+            </Button> */}
             <div className="text-xs w-full justify-center items-center flex gap-3">
               <p>Already have an account?</p>
               <Link className="blueColor" to={`/signin`}>
