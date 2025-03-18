@@ -44,7 +44,7 @@ export const TransactionSection: React.FC = () => {
           <div className="h-6 bg-gray-300 rounded w-1/2"></div>
         </div>
       ) : transactions?.length === 0 ? (
-        <p className="text-gray-500">No transactions found.</p>
+        <p className="text-gray-500 pl-5">No transactions found.</p>
       ) : (
         <div className="overflow-x-auto rounded-lg">
           <table className="w-full border border-gray-300 text-left">

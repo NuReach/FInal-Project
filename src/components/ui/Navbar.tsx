@@ -75,7 +75,7 @@ export default function Navbar() {
               />
             </svg>
           </Link>
-          <Link to={"/user/profile/12"}>
+          <Link to={"/user/profile"}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -131,9 +131,17 @@ export default function Navbar() {
         <Link to="/">
           <Heading2 text="Ecoswap" />
         </Link>
-        <button onClick={() => setMenuOpen(!menuOpen)} className="text-xl">
-          ☰
-        </button>
+        <div className="flex gap-3">
+          {auth?.user && (
+            <Link to={`/add_coint`} className="flex gap-2">
+              <p>{balance?.balance}</p>
+              <p>Coins</p>
+            </Link>
+          )}
+          <button onClick={() => setMenuOpen(!menuOpen)} className="text-xl">
+            ☰
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu */}
@@ -148,10 +156,33 @@ export default function Navbar() {
           <button>Quick Buy</button>
           <button>New Arrival</button>
           <button>Category</button>
-          <div className="flex gap-3 mt-3">
-            <Link to="/cart">🛒 Cart</Link>
-            <span>👤 Profile</span>
-            <span>💰 100 Coins</span>
+          <div className="flex flex-col justify-between gap-3 mt-3">
+            <Link to={`/user/profile`} className="flex gap-2">
+              <Button className="w-full">Profile</Button>
+            </Link>
+            <Link to={`/cart`} className="flex gap-2">
+              <Button className="w-full">Cart</Button>
+            </Link>
+            {auth?.user ? (
+              <div className="flex gap-3 items-center flex-col">
+                <Link
+                  to={`/dashboard/${auth.user?.id}`}
+                  className="flex gap-2 w-full "
+                >
+                  <Button className="w-full">Dashboard</Button>
+                </Link>
+                <div
+                  className="hover:cursor-pointer w-full"
+                  onClick={handleSignOut}
+                >
+                  <Button className="w-full">Logout</Button>
+                </div>
+              </div>
+            ) : (
+              <Link to={`/signin`} className="flex gap-2 w-full">
+                <Button className="w-full">Sign In</Button>
+              </Link>
+            )}
           </div>
         </div>
       )}

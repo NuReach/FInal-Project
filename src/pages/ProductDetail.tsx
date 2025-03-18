@@ -8,35 +8,35 @@ export default function ProductDetail() {
     <div>
       <Navbar />
       <div
-        className="bg-white py-12
-       px-[160px] flex flex-col flex-wrap md:flex-row gap-6"
+        className="bg-white md:py-12
+       lg:px-[160px] flex flex-col flex-wrap md:flex-row gap-6"
       >
-        <div className="flex gap-4 flex-col md:flex-row">
-          <div className="flex gap-4 md:flex-col  ">
+        <div className="flex gap-4 p-3 flex-col md:flex-row">
+          <div className="grid grid-cols-3 gap-3 md:flex md:flex-col  ">
             <img
               src="https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg"
               alt="Thumbnail 1"
-              className=" w-full md:w-32 h-32 object-cover rounded-lg"
+              className=" w-full md:w-32 md:h-32 object-cover rounded-lg"
             />
             <img
               src="https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg"
               alt="Thumbnail 2"
-              className=" w-full md:w-32 h-32 object-cover rounded-lg"
+              className=" w-full md:w-32 mdh-32 object-cover rounded-lg"
             />
             <img
               src="https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg"
               alt="Thumbnail 3"
-              className=" w-full md:w-32 h-32 object-cover rounded-lg"
+              className=" w-full md:w-32 mdh-32 object-cover rounded-lg"
             />
           </div>
           <img
             src="https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg"
             alt="One Life Graphic T-shirt"
-            className="w-96 h-auto rounded-lg object-cover"
+            className=" w-full md:w-96 rounded-lg object-cover"
           />
         </div>
 
-        <div className="flex-1 w-96 mt-6 md:mt-3">
+        <div className="flex-1 p-3 md:w-96 mt-6 md:mt-3">
           <h2 className="text-2xl font-bold">One Life Graphic T-shirt</h2>
           <p className="text-lg font-semibold text-gray-700">260 coins</p>
           <p className="text-gray-600 mt-2">
