@@ -320,7 +320,7 @@ export default function UpdateProductPage() {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
+                          <SelectValue placeholder={field.value} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -546,7 +546,7 @@ export default function UpdateProductPage() {
                               {subImagePreviews && (
                                 <img
                                   src={product.product_images[index].image_url}
-                                  alt="Selected Preview"
+                                  alt={preview.id}
                                   className="mt-4 w-full max-w-xs rounded border"
                                 />
                               )}

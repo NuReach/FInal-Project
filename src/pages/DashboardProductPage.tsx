@@ -6,23 +6,26 @@ import Navbar from "../components/ui/Navbar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import supabase from "../supabaseClient";
 import { toast } from "react-toastify";
-
-const fetchProducts = async () => {
-  const { data, error } = await supabase.from("products").select("*");
-
-  if (error) {
-    console.error("Error fetching products:", error);
-    throw error;
-  }
-
-  return data; // Returns an array of products
-};
+import useAuth from "../service/useAuth";
 
 export default function ProductTablePage() {
   const queryClient = useQueryClient();
-  const { data, isLoading } = useQuery({
-    queryKey: ["user-products"], // Caches data under 'products'
-    queryFn: fetchProducts, // Calls the fetch function
+  const { data } = useAuth();
+  const user = data?.user;
+  const { data: products, isLoading } = useQuery({
+    queryKey: ["user-products", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("user_id", user?.id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data; // only return the array
+    },
     staleTime: 1000 * 60 * 5, // Cache data for 5 minutes
   });
 
@@ -41,63 +44,69 @@ export default function ProductTablePage() {
               <Button className="text-xs">Add Product</Button>
             </Link>
           </div>
-
           <div className="overflow-x-auto mt-3">
-            <table className="w-full border border-black rounded-lg text-left shadow-lg overflow-hidden">
-              <thead>
-                <tr className="bg-gray-300">
-                  <th className="p-2 border">No</th>
-                  <th className="p-2 border">Product</th>
-                  <th className="p-2 border">Price</th>
-                  <th className="p-2 border">Stock</th>
-                  <th className="p-2 border">Category</th>
-                  <th className="p-2 border">Status</th>
-                  <th className="p-2 border">Edit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data?.map((product, index) => (
-                  <tr key={product.id} className="border">
-                    <td className="p-2 border">{index + 1}</td>
-                    <td className="p-2 border">{product.name}</td>
-                    <td className="p-2 border">{product.price}</td>
-                    <td className="p-2 border">{product.stock}</td>
-                    <td className="p-2 border">{product.category}</td>
-                    <td
-                      className={`p-2 border ${
-                        product.status === "Available"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    >
-                      {product.status}
-                    </td>
-                    <td className="p-2 border cursor-pointer flex gap-3">
-                      <Link to={`/dashboard/product/edit/${product.id}`}>
-                        Edit
-                      </Link>
-                      <button
-                        onClick={async () => {
-                          const { error } = await supabase
-                            .from("products") // Replace with your actual table name
-                            .delete()
-                            .eq("id", product.id);
-                          if (error) {
-                            toast.error(error.message);
-                          }
-                          toast.success("Deleted successfully");
-                          queryClient.invalidateQueries({
-                            queryKey: ["user-products"],
-                          });
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </td>
+            {products?.length === 0 ? (
+              <div className="text-center py-10 text-gray-500 text-lg">
+                No products found.
+              </div>
+            ) : (
+              <table className="w-full border border-black rounded-lg text-left shadow-lg overflow-hidden">
+                <thead>
+                  <tr className="bg-gray-300">
+                    <th className="p-2 border">No</th>
+                    <th className="p-2 border">Product</th>
+                    <th className="p-2 border">Price</th>
+                    <th className="p-2 border">Stock</th>
+                    <th className="p-2 border">Category</th>
+                    <th className="p-2 border">Status</th>
+                    <th className="p-2 border">Edit</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {products?.map((product, index) => (
+                    <tr key={product.id} className="border">
+                      <td className="p-2 border">{index + 1}</td>
+                      <td className="p-2 border">{product.name}</td>
+                      <td className="p-2 border">{product.price}</td>
+                      <td className="p-2 border">{product.stock}</td>
+                      <td className="p-2 border">{product.category}</td>
+                      <td
+                        className={`p-2 border ${
+                          product.status === "Available"
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        {product.status}
+                      </td>
+                      <td className="p-2 border cursor-pointer flex gap-3">
+                        <Link to={`/dashboard/product/edit/${product.id}`}>
+                          Edit
+                        </Link>
+                        <button
+                          onClick={async () => {
+                            const { error } = await supabase
+                              .from("products")
+                              .delete()
+                              .eq("id", product.id);
+                            if (error) {
+                              toast.error(error.message);
+                            } else {
+                              toast.success("Deleted successfully");
+                              queryClient.invalidateQueries({
+                                queryKey: ["user-products"],
+                              });
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </section>
       )}

@@ -5,9 +5,8 @@ import Navbar from "../components/ui/Navbar";
 import Carousel from "../components/ui/Carousel";
 import CategorySection from "../components/ui/CategorySection";
 import Footer from "../components/ui/Footer";
-import { CollectionList } from "../components/ui/CollectionList";
 import { ProductList } from "../components/ui/ProductList";
-import { Collection, Product } from "../Schema";
+import { Product } from "../Schema";
 import useAuth from "../service/useAuth";
 
 const courseSchema = z.object({
@@ -49,7 +48,7 @@ function Home() {
       <Carousel />
       <section className="p-3 md:px-24 md:py-12">
         <div className="mt-3 md:mt-6">
-          <CollectionList title="Collection" collections={collections} />
+          <ProductList title="TopSwaping" products={products} />
         </div>
         <div className="mt-3 md:mt-6">
           <ProductList title="Swapping" products={products} />
@@ -62,41 +61,6 @@ function Home() {
 }
 
 export default Home;
-
-const collections: Collection[] = [
-  {
-    id: "1",
-    name: "T-shirt with Tape Details",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "2",
-    name: "Skinny Fit Jeans",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "3",
-    name: "Checkered Shirt",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "4",
-    name: "Sleeve Striped T-shirt",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-];
 
 const products: Product[] = [
   {

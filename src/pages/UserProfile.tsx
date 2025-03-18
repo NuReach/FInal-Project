@@ -1,9 +1,13 @@
+import { Link } from "react-router-dom";
 import { CollectionList } from "../components/ui/CollectionList";
 import Feedback from "../components/ui/Feedback";
 import Footer from "../components/ui/Footer";
+import Heading from "../components/ui/Heading";
 import Navbar from "../components/ui/Navbar";
 import { ProductList } from "../components/ui/ProductList";
 import { Collection, Product } from "../Schema";
+import useAuth from "../service/useAuth";
+import { Button } from "../components/ui/button";
 
 const collections: Collection[] = [
   {
@@ -80,30 +84,41 @@ const products: Product[] = [
 ];
 
 export default function UserProfile() {
+  const { data } = useAuth();
+  const user = data?.user;
   return (
     <div>
       <Navbar />
-      <section className="p-3 md:px-24 md:py-12">
-        <ProfileCard
-          name="Hong Nnureach"
-          email="hongnnureach@gmail.com"
-          phone="078441752"
-          avatarUrl="https://cdn-icons-png.flaticon.com/512/921/921347.png"
-          all={10}
-          swap={10}
-          successRate={90}
-          review={30}
-        />
-        <div className="mt-3 md:mt-6">
-          <CollectionList title="Collection" collections={collections} />
+      {user ? (
+        <section className="p-3 md:px-24 md:py-12">
+          <ProfileCard
+            name="Hong Nnureach"
+            email="hongnnureach@gmail.com"
+            phone="078441752"
+            avatarUrl="https://cdn-icons-png.flaticon.com/512/921/921347.png"
+            all={10}
+            swap={10}
+            successRate={90}
+            review={30}
+          />
+          <div className="mt-3 md:mt-6">
+            <CollectionList title="Collection" collections={collections} />
+          </div>
+          <div className="mt-3 md:mt-6">
+            <ProductList title="Swapping" products={products} />
+          </div>
+          <div>
+            <Feedback />
+          </div>
+        </section>
+      ) : (
+        <div className="h-screen w-screen flex flex-col justify-center items-center">
+          <Heading text="Please Sign In First!" className="text-[#A8BBA3]" />
+          <Link to={`/signin`} className="flex gap-2 mt-3">
+            <Button>Sign In</Button>
+          </Link>
         </div>
-        <div className="mt-3 md:mt-6">
-          <ProductList title="Swapping" products={products} />
-        </div>
-        <div>
-          <Feedback />
-        </div>
-      </section>
+      )}
       <Footer />
     </div>
   );
