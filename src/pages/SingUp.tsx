@@ -70,6 +70,16 @@ export default function SignUpPage() {
           throw new Error(roleError.message); // Throw error if role insertion fails
         }
       }
+      const { error: walletError } = await supabase.from("wallets").insert([
+        {
+          user_id: user?.id, // Link the wallet to the user
+          balance: 0, // Set the initial balance to 0 or any value you want
+        },
+      ]);
+
+      if (walletError) {
+        throw new Error(walletError.message); // Throw error if wallet insertion fails
+      }
       return { user };
     },
     onSuccess: () => {

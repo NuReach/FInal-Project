@@ -4,15 +4,30 @@ import Heading2 from "./Heading2";
 import { Button } from "./button";
 import useAuth from "../../service/useAuth";
 import useSignOut from "../../service/useSignOut";
+import supabase from "../../supabaseClient";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { data } = useAuth();
+  const { data: auth } = useAuth();
 
   const { mutateAsync: signOutMutation } = useSignOut();
+
+  const { data: balance } = useQuery({
+    queryKey: ["user-balance", auth?.user?.id],
+    queryFn: async () => {
+      const { data: coins } = await supabase
+        .from("wallets")
+        .select("balance")
+        .eq("user_id", auth?.user?.id)
+        .single();
+      return coins;
+    },
+  });
   const handleSignOut = async () => {
     await signOutMutation();
   };
+
   return (
     <nav className="w-full bg-white shadow">
       {/* Desktop Navbar */}
@@ -75,15 +90,15 @@ export default function Navbar() {
             </svg>
           </Link>
         </div>
-        {data?.user && (
+        {auth?.user && (
           <Link to={`/add_coint`} className="flex gap-2">
-            <p>100</p>
+            <p>{balance?.balance}</p>
             <p>Coins</p>
           </Link>
         )}
-        {data?.user ? (
+        {auth?.user ? (
           <div className="flex gap-3 items-center">
-            <Link to={`/dashboard/${data.user?.id}`} className="flex gap-2">
+            <Link to={`/dashboard/${auth.user?.id}`} className="flex gap-2">
               <Button>Dashboard</Button>
             </Link>
             <div className="hover:cursor-pointer" onClick={handleSignOut}>

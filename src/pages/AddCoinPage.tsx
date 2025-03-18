@@ -10,18 +10,75 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import supabase from "../supabaseClient";
+import useAuth from "../service/useAuth";
 
 const stripePromise = loadStripe(
   "pk_test_51MDXbkL5zRzBFa27OFK9e8iXK6QyOYWcOgv6ULDda178UtgEUWMJ1laSxZAp5sfA1bmpzmMEoiW2wpUBZX7ZgL5200q67kWJRo"
-); // Replace with your Stripe Publishable Key
-
-const CheckoutForm: React.FC<{ amount: number; onSuccess: () => void }> = ({
-  amount,
-  onSuccess,
-}) => {
+);
+const CheckoutForm: React.FC<{
+  amount: number;
+  coins: number;
+  onSuccess: () => void;
+}> = ({ amount, coins, onSuccess }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
+  const { data: auth } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { mutateAsync: updateWalletBalanceMutation } = useMutation({
+    mutationFn: async ({
+      coins,
+      amount,
+    }: {
+      coins: number;
+      amount: number;
+    }) => {
+      // Fetch current balance first
+      const { data: wallet, error: fetchError } = await supabase
+        .from("wallets")
+        .select("balance")
+        .eq("user_id", auth?.user?.id)
+        .single(); // Assuming there's only one wallet per user
+
+      if (fetchError) throw new Error(fetchError.message);
+
+      const updatedBalance = (wallet?.balance || 0) + coins;
+
+      // Now update the balance
+      const { data, error } = await supabase
+        .from("wallets")
+        .update({ balance: updatedBalance })
+        .eq("user_id", auth?.user?.id);
+
+      if (error) throw new Error(error.message);
+
+      const { error: transactionError } = await supabase
+        .from("transactions")
+        .insert([
+          {
+            user_id: auth?.user?.id,
+            coins: coins,
+            amount: amount,
+            status: "completed",
+          },
+        ]);
+      if (transactionError) throw new Error(transactionError.message);
+
+      return data;
+    },
+
+    onSuccess: () => {
+      toast.success("Wallet updated!");
+      queryClient.invalidateQueries({ queryKey: ["user-balance"] });
+      onSuccess();
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update wallet: ${error.message}`);
+    },
+  });
 
   const handlePayment = async () => {
     if (!stripe || !elements) return;
@@ -51,8 +108,8 @@ const CheckoutForm: React.FC<{ amount: number; onSuccess: () => void }> = ({
 
       if (error) {
         console.error("Payment failed:", error);
-        toast.error("Payment failed. Please try again.");
       } else if (paymentIntent.status === "succeeded") {
+        await updateWalletBalanceMutation({ coins, amount });
         toast.success("Payment successful!");
         onSuccess();
       }
@@ -118,7 +175,7 @@ const BuyCoinSection: React.FC = () => {
           <div className="flex-1 flex flex-col space-y-4 p-4">
             <h2 className="text-xl font-semibold">Buy</h2>
             <div className="space-y-2">
-              <label className="block text-gray-700">Spend</label>
+              <label className="block text-gray-700">Spend($)</label>
               <input
                 type="number"
                 value={money}
@@ -127,7 +184,7 @@ const BuyCoinSection: React.FC = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-gray-700">Receive</label>
+              <label className="block text-gray-700">Receive(Coins)</label>
               <input
                 type="number"
                 value={coins}
@@ -144,7 +201,11 @@ const BuyCoinSection: React.FC = () => {
               />
             </div>
             <Elements stripe={stripePromise}>
-              <CheckoutForm amount={money} onSuccess={handleSuccess} />
+              <CheckoutForm
+                amount={money}
+                coins={coins}
+                onSuccess={handleSuccess}
+              />
             </Elements>
           </div>
         </div>
