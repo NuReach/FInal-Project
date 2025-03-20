@@ -131,7 +131,7 @@ export default function CreateProductPage() {
       setSubImagePreviews([]);
       toast.success("Product created successfully!");
       queryClient.invalidateQueries({ queryKey: ["user-products"] });
-      navigate(`/dashboard/products`);
+      navigate(`/dashboard`);
     },
     onError: (error: Error) => {
       console.error("Error creating product:", error.message);

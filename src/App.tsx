@@ -12,6 +12,8 @@ import { Bounce, ToastContainer } from "react-toastify";
 import DashboardProductPage from "./pages/DashboardProductPage";
 import CreateProductPage from "./pages/CreateProductPage";
 import UpdateProductPage from "./pages/UpdateProductPage";
+import CollectionsTablePage from "./pages/DashboardCollectionPage";
+import CollecctionDetail from "./pages/CollectionDetail";
 
 function App() {
   return (
@@ -32,10 +34,15 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/product/:product_id" element={<ProductDetail />} />
+        <Route path="/collection/:product_id" element={<CollecctionDetail />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/user/profile" element={<UserProfile />} />
         <Route path="/dashboard/products" element={<DashboardProductPage />} />
+        <Route
+          path="/dashboard/collections"
+          element={<CollectionsTablePage />}
+        />
         <Route
           path="/dashboard/create/product"
           element={<CreateProductPage />}

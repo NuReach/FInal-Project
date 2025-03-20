@@ -30,7 +30,7 @@ const fetchCollection = async (userId: string) => {
   const { data, error } = await supabase
     .from("products")
     .select("*")
-    .eq("type", "collection") // Filter by type "collection"
+    .eq("type", "Collection") // Filter by type "collection"
     .eq("user_id", userId) // Filter by user_id
     .order("created_at", { ascending: false }) // Order by newest
     .limit(8); // Limit to 8 collections

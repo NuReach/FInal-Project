@@ -22,7 +22,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         {firstSegment == "dashboard" && (
           <Link
             className="bg-[#A8BBA3] px-6 py-2 rounded-lg text-xs text-white"
-            to={`/dashboard/products`}
+            to={`/dashboard/collections`}
           >
             All
           </Link>

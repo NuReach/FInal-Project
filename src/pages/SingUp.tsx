@@ -18,6 +18,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import supabase from "../supabaseClient";
 import { toast } from "react-toastify";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { phnomPenhDistricts } from "../Schema";
 
 const formSchema = z
   .object({
@@ -186,6 +194,33 @@ Users can purchase goods using a unique point-based system, where 1 dollar is eq
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Address" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {phnomPenhDistricts.map((item, i) => (
+                        <SelectItem key={i} value={item}>
+                          {item}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

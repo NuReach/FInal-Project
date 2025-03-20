@@ -8,7 +8,7 @@ import supabase from "../supabaseClient";
 import { toast } from "react-toastify";
 import useAuth from "../service/useAuth";
 
-export default function ProductTablePage() {
+export default function CollectionsTablePage() {
   const queryClient = useQueryClient();
   const { data } = useAuth();
   const user = data?.user;
@@ -18,7 +18,7 @@ export default function ProductTablePage() {
       const { data, error } = await supabase
         .from("products")
         .select("*")
-        .eq("type", "Product")
+        .eq("type", "Collection")
         .eq("user_id", user?.id);
 
       if (error) {
@@ -40,22 +40,22 @@ export default function ProductTablePage() {
       ) : (
         <section className="p-3 md:px-24">
           <div className="flex items-center flex-wrap md:gap-6">
-            <Heading text={`Products List`} className="text-[#A8BBA3]" />
+            <Heading text={`Collections List`} className="text-[#A8BBA3]" />
             <Link to={`/dashboard/create/product`}>
-              <Button className="text-xs">Add Product</Button>
+              <Button className="text-xs">Add Collection</Button>
             </Link>
           </div>
           <div className="overflow-x-auto mt-3">
             {products?.length === 0 ? (
               <div className="text-center py-10 text-gray-500 text-lg">
-                No products found.
+                No collection found.
               </div>
             ) : (
               <table className="w-full border border-black rounded-lg text-left shadow-lg overflow-hidden">
                 <thead>
                   <tr className="bg-gray-300">
                     <th className="p-2 border">No</th>
-                    <th className="p-2 border">Product</th>
+                    <th className="p-2 border">Collection</th>
                     <th className="p-2 border">Price</th>
                     <th className="p-2 border">Stock</th>
                     <th className="p-2 border">Category</th>
