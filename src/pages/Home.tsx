@@ -15,6 +15,7 @@ const fetchProducts = async () => {
     .select("*")
     .eq("status", "Available") // Filter by status
     .eq("type", "Product") // Filter by type
+    .gt("stock", 0)
     .order("created_at", { ascending: false }) // Order by newest
     .limit(8); // Limit to 8 products
 
@@ -31,6 +32,7 @@ const fetchCollection = async () => {
     .select("*")
     .eq("status", "Available") // Filter by status
     .eq("type", "Collection") // Filter by type "collection"
+    .gt("stock", 0)
     .order("created_at", { ascending: false }) // Order by newest
     .limit(8); // Limit to 8 products
 

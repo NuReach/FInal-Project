@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
-import { YouMightLikeSection } from "../components/ui/YouMightLike";
+import YouMightLike from "../components/ui/YouMightLike";
 import supabase from "../supabaseClient";
 import { useQuery } from "@tanstack/react-query";
 
@@ -10,17 +10,34 @@ export default function ProductDetail() {
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", product_id],
     queryFn: async () => {
-      const { data } = await supabase
+      // 1. Get the product (with product_images and user_id)
+      const { data: product, error: productError } = await supabase
         .from("products")
         .select(
           `
-        *,
-        product_images (id, image_url)
-      `
+            *,
+            product_images (id, image_url)
+          `
         )
         .eq("id", product_id)
         .single();
-      return data;
+
+      if (productError) throw productError;
+      if (!product) throw new Error("Product not found");
+
+      // 2. Get user_roles using product.user_id
+      const { data: userRoles, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("*")
+        .eq("user_id", product.user_id);
+
+      if (rolesError) throw rolesError;
+
+      // 3. Combine and return
+      return {
+        ...product,
+        user_roles: userRoles,
+      };
     },
   });
   console.log(product, isLoading);
@@ -82,14 +99,15 @@ export default function ProductDetail() {
             </div>
             <div className="flex items-center gap-2 mt-4">
               <img
-                src="https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg"
+                src={product.user_roles[0].image_url}
                 alt="User"
                 className="w-10 h-10 rounded-full"
               />
-              <Link to={`/user/profile/1`}>
+              <Link to={`/user/profile/${product.user_roles[0].id}`}>
                 <div>
                   <p className="font-semibold">
-                    Hong Nnureach <span className="text-green-500">✔</span>
+                    {product.user_roles[0].name}{" "}
+                    <span className="text-green-500">✔</span>
                   </p>
                   <p className="text-sm text-gray-500">
                     Check out more from this user
@@ -103,7 +121,10 @@ export default function ProductDetail() {
           </div>
         </div>
       )}
-      <YouMightLikeSection />
+      <YouMightLike
+        product_category={product.category}
+        product_id={product_id || ""}
+      />
       <Footer />
     </div>
   );
