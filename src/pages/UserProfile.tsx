@@ -1,91 +1,64 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { CollectionList } from "../components/ui/CollectionList";
 import Feedback from "../components/ui/Feedback";
 import Footer from "../components/ui/Footer";
 import Heading from "../components/ui/Heading";
 import Navbar from "../components/ui/Navbar";
 import { ProductList } from "../components/ui/ProductList";
-import { Collection, Product } from "../Schema";
+import { Product } from "../Schema";
 import useAuth from "../service/useAuth";
 import { Button } from "../components/ui/button";
+import supabase from "../supabaseClient";
+import { useQuery } from "@tanstack/react-query";
 
-const collections: Collection[] = [
-  {
-    id: "1",
-    name: "T-shirt with Tape Details",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "2",
-    name: "Skinny Fit Jeans",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "3",
-    name: "Checkered Shirt",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "4",
-    name: "Sleeve Striped T-shirt",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-];
+const fetchProducts = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("type", "Product") // Filter by type "product"
+    .eq("user_id", userId) // Filter by user_id
+    .order("created_at", { ascending: false }) // Order by newest
+    .limit(8); // Limit to 8 products
 
-const products: Product[] = [
-  {
-    id: "1",
-    name: "T-shirt with Tape Details",
-    description: "Lorem de la leru monte sha fork",
-    price: 120,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "2",
-    name: "Skinny Fit Jeans",
-    description: "Lorem de la leru monte sha fork",
-    price: 240,
-    originalPrice: 260,
-    discountPercentage: 30,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "3",
-    name: "Checkered Shirt",
-    description: "Lorem de la leru monte sha fork",
-    price: 180,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "4",
-    name: "Sleeve Striped T-shirt",
-    description: "Lorem de la leru monte sha fork",
-    price: 130,
-    originalPrice: 200,
-    discountPercentage: 30,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-];
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+const fetchCollection = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("type", "Collection") // Filter by type "collection"
+    .eq("user_id", userId) // Filter by user_id
+    .order("created_at", { ascending: false }) // Order by newest
+    .limit(8); // Limit to 8 collections
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
 
 export default function UserProfile() {
   const { data } = useAuth();
   const user = data?.user;
+  const { acc_id } = useParams();
+  const { data: products, isLoading: productLoading } = useQuery<Product[]>({
+    queryKey: ["products", acc_id], // Include acc_id in the query key
+    queryFn: () => (acc_id ? fetchProducts(acc_id) : Promise.resolve([])), // Fallback to empty array if acc_id is undefined
+  });
+
+  const { data: collections, isLoading: collectionLoading } = useQuery<
+    Product[]
+  >({
+    queryKey: ["collections", acc_id], // Include acc_id in the query key
+    queryFn: () => (acc_id ? fetchCollection(acc_id) : Promise.resolve([])), // Fallback to empty array if acc_id is undefined
+  });
+
   return (
     <div>
       <Navbar />
@@ -102,10 +75,21 @@ export default function UserProfile() {
             review={30}
           />
           <div className="mt-3 md:mt-6">
-            <CollectionList title="Collection" collections={collections} />
+            {collectionLoading ? (
+              <div>Loading</div>
+            ) : (
+              <CollectionList
+                title="Collection"
+                collections={collections || []}
+              />
+            )}
           </div>
           <div className="mt-3 md:mt-6">
-            <ProductList title="Swapping" products={products} />
+            {productLoading ? (
+              <div>Loading</div>
+            ) : (
+              <ProductList title="Swapping" products={products || []} />
+            )}
           </div>
           <div>
             <Feedback />

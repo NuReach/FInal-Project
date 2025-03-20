@@ -106,7 +106,7 @@ export default function CollecctionDetail() {
                 alt="User"
                 className="w-10 h-10 rounded-full"
               />
-              <Link to={`/user/profile/${product.user_roles[0].id}`}>
+              <Link to={`/user/profile/${product.user_roles[0].user_id}`}>
                 <div>
                   <p className="font-semibold">
                     {product.user_roles[0].name}{" "}

@@ -4,6 +4,7 @@ import Navbar from "../components/ui/Navbar";
 import YouMightLike from "../components/ui/YouMightLike";
 import supabase from "../supabaseClient";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "../components/ui/Loading";
 
 export default function ProductDetail() {
   const { product_id } = useParams<{ product_id: string }>();
@@ -40,13 +41,14 @@ export default function ProductDetail() {
       };
     },
   });
-  console.log(product, isLoading);
 
   return (
     <div>
       <Navbar />
       {isLoading ? (
-        <div>Loading</div>
+        <div>
+          <Loading />
+        </div>
       ) : (
         <div
           className="bg-white md:py-12
@@ -103,7 +105,7 @@ export default function ProductDetail() {
                 alt="User"
                 className="w-10 h-10 rounded-full"
               />
-              <Link to={`/user/profile/${product.user_roles[0].id}`}>
+              <Link to={`/user/profile/${product.user_roles[0].user_id}`}>
                 <div>
                   <p className="font-semibold">
                     {product.user_roles[0].name}{" "}
@@ -121,10 +123,16 @@ export default function ProductDetail() {
           </div>
         </div>
       )}
-      <YouMightLike
-        product_category={product.category}
-        product_id={product_id || ""}
-      />
+      {isLoading ? (
+        <div>
+          <Loading />
+        </div>
+      ) : (
+        <YouMightLike
+          product_category={product.category || ""}
+          product_id={product_id || ""}
+        />
+      )}
       <Footer />
     </div>
   );
