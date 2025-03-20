@@ -12,15 +12,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       to={`/product/${product.id}`}
       className=" rounded-lg p-3 cursor-pointer text-xs md:text-lg"
     >
-      <img className="rounded-lg" src={product.imageUrl} alt={product.name} />
+      <img
+        className="rounded-lg "
+        src={
+          typeof product.image_url === "string" ? product.image_url : undefined
+        }
+        alt={product.name}
+      />
 
       <Description className="text-black font-bold" text={product.name} />
-      <p style={{ margin: "0 0 10px 0", fontSize: "0.9em", color: "#666" }}>
+      <p
+        className="line-clamp-1 "
+        style={{ margin: "0 0 10px 0", fontSize: "0.9em", color: "#666" }}
+      >
         {product.description}
       </p>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <span style={{ fontWeight: "bold" }}>{product.price} coins</span>
-        {product.originalPrice && product.discountPercentage && (
+        <span style={{ fontWeight: "bold" }}>
+          {(product.price * (100 - product.discount)) / 100} coins
+        </span>
+        {product.price && product.discount > 0 && (
           <span
             style={{
               marginLeft: "10px",
@@ -28,12 +39,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               color: "#999",
             }}
           >
-            {product.originalPrice}
+            {product.price}
           </span>
         )}
-        {product.discountPercentage && (
+        {product.discount > 0 && (
           <span style={{ marginLeft: "10px", color: "red" }}>
-            -{product.discountPercentage}%
+            -{product.discount}%
           </span>
         )}
       </div>

@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import supabase from "../supabaseClient";
-import { z } from "zod";
 import Navbar from "../components/ui/Navbar";
 import Carousel from "../components/ui/Carousel";
 import CategorySection from "../components/ui/CategorySection";
@@ -8,22 +7,32 @@ import Footer from "../components/ui/Footer";
 import { ProductList } from "../components/ui/ProductList";
 import { Product } from "../Schema";
 import useAuth from "../service/useAuth";
+import { CollectionList } from "../components/ui/CollectionList";
 
-const courseSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  description: z.string().optional(),
-  price: z.number(),
-  created_at: z.string(),
-});
-
-console.log(courseSchema);
-
-const fetchCourses = async () => {
+const fetchProducts = async () => {
   const { data, error } = await supabase
-    .from("assets") // Replace 'users' with your table name
+    .from("products")
     .select("*")
-    .order("created_at", { ascending: false });
+    .eq("status", "Available") // Filter by status
+    .eq("type", "Product") // Filter by type
+    .order("created_at", { ascending: false }) // Order by newest
+    .limit(8); // Limit to 8 products
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+const fetchCollection = async () => {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("status", "Available") // Filter by status
+    .eq("type", "Collection") // Filter by type "collection"
+    .order("created_at", { ascending: false }) // Order by newest
+    .limit(8); // Limit to 8 products
 
   if (error) {
     throw new Error(error.message);
@@ -33,14 +42,20 @@ const fetchCourses = async () => {
 };
 
 function Home() {
-  const { data, isLoading } = useAuth();
-  console.log(data, isLoading);
+  const { data: user, isLoading } = useAuth();
+  console.log(user, isLoading);
 
-  const { data: courses } = useQuery<z.infer<typeof courseSchema>[]>({
-    queryKey: ["courses"], // Unique key for caching
-    queryFn: fetchCourses, // Query function to fetch data
+  const { data: products, isLoading: productLoading } = useQuery<Product[]>({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
   });
-  console.log(courses);
+
+  const { data: collections, isLoading: collectionLoading } = useQuery<
+    Product[]
+  >({
+    queryKey: ["collections"],
+    queryFn: fetchCollection,
+  });
 
   return (
     <div>
@@ -48,10 +63,21 @@ function Home() {
       <Carousel />
       <section className="p-3 md:px-24 md:py-12">
         <div className="mt-3 md:mt-6">
-          <ProductList title="TopSwaping" products={products} />
+          {productLoading ? (
+            <div>Loading</div>
+          ) : (
+            <ProductList title="Swapping" products={products || []} />
+          )}
         </div>
         <div className="mt-3 md:mt-6">
-          <ProductList title="Swapping" products={products} />
+          {collectionLoading ? (
+            <div>Loading</div>
+          ) : (
+            <CollectionList
+              title="Collection"
+              collections={collections || []}
+            />
+          )}
         </div>
       </section>
       <CategorySection />
@@ -61,42 +87,3 @@ function Home() {
 }
 
 export default Home;
-
-const products: Product[] = [
-  {
-    id: "1",
-    name: "T-shirt with Tape Details",
-    description: "Lorem de la leru monte sha fork",
-    price: 120,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "2",
-    name: "Skinny Fit Jeans",
-    description: "Lorem de la leru monte sha fork",
-    price: 240,
-    originalPrice: 260,
-    discountPercentage: 30,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "3",
-    name: "Checkered Shirt",
-    description: "Lorem de la leru monte sha fork",
-    price: 180,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "4",
-    name: "Sleeve Striped T-shirt",
-    description: "Lorem de la leru monte sha fork",
-    price: 130,
-    originalPrice: 200,
-    discountPercentage: 30,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-];

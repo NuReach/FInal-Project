@@ -1,11 +1,21 @@
 export interface Product {
-  id: string;
+  id: string; // uuid
+  user_id: string; // uuid
   name: string;
   description: string;
-  price: number;
-  originalPrice?: number;
-  discountPercentage?: number;
-  imageUrl: string;
+  price: number; // float4
+  discount: number; // float4
+  image_url: string;
+  type: "Product" | "Collection";
+  status: "Available" | "Out of Stock" | "Unavailable";
+  created_at: string; // timestamptz (ISO 8601 string)
+  updated_at: string; // timestamptz (ISO 8601 string)
+  category: string;
+  condition: number; // float4
+  brand: string;
+  usage: string;
+  other_message: string;
+  stock: number; // int2
 }
 
 export interface Collection {
@@ -179,3 +189,35 @@ export const updateProductSchema = z.object({
     .length(3, { message: "Exactly 3 sub-images are required" })
     .optional(),
 });
+
+export const categories = [
+  "Electronics",
+  "Fashion",
+  "Home & Living",
+  "Beauty & Health",
+  "Sports & Outdoors",
+  "Toys & Games",
+  "Books",
+  "Groceries",
+  "Automotive",
+  "Furniture",
+];
+
+export const phnomPenhDistricts = [
+  "Daun Penh",
+  "Chamkarmon",
+  "Toul Kork",
+  "Meanchey",
+  "Por Sen Chey",
+  "Russey Keo",
+  "Sangkat Phnom Penh Thmei",
+  "Khan 7 Makara",
+  "Khan Toul Kork",
+  "Khan Chamkarmon",
+  "Khan Daun Penh",
+  "Khan Meanchey",
+  "Khan Por Sen Chey",
+  "Khan Russey Keo",
+  "Khan Saensokh",
+  "Khan Kambol",
+];

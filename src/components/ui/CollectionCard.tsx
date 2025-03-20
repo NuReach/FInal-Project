@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import Description from "./Description";
-import { Collection } from "../../Schema";
+import { Product } from "../../Schema";
 
 interface CollectionCardProps {
-  collection: Collection;
+  collection: Product;
 }
 
 export const CollectionCard: React.FC<CollectionCardProps> = ({
@@ -16,7 +16,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     >
       <img
         className="rounded-lg"
-        src={collection.imageUrl}
+        src={collection.image_url}
         alt={collection.name}
       />
 

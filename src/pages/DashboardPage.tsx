@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { CollectionList } from "../components/ui/CollectionList";
 import Footer from "../components/ui/Footer";
 import { HistorySection } from "../components/ui/HistorySection";
@@ -5,98 +6,89 @@ import Navbar from "../components/ui/Navbar";
 import { ProductList } from "../components/ui/ProductList";
 import StatsSection from "../components/ui/StatCard";
 import { TransactionSection } from "../components/ui/Transaction";
-import { Collection, Product } from "../Schema";
+import supabase from "../supabaseClient";
+import { Product } from "../Schema";
+import useAuth from "../service/useAuth";
+
+const fetchProducts = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("type", "Product") // Filter by type "product"
+    .eq("user_id", userId) // Filter by user_id
+    .order("created_at", { ascending: false }) // Order by newest
+    .limit(8); // Limit to 8 products
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
+const fetchCollection = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("type", "collection") // Filter by type "collection"
+    .eq("user_id", userId) // Filter by user_id
+    .order("created_at", { ascending: false }) // Order by newest
+    .limit(8); // Limit to 8 collections
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
 
 export default function DashboardPage() {
+  const { data: auth, isLoading } = useAuth(); // Get the authenticated user
+  const userId = auth?.user?.id; // Assuming the user object has the id field
+
+  // Ensure userId is defined before making the query
+  const { data: products, isLoading: productLoading } = useQuery<Product[]>({
+    queryKey: ["products", userId], // Include userId in the query key
+    queryFn: () => (userId ? fetchProducts(userId) : Promise.resolve([])), // Fallback to empty array if userId is undefined
+  });
+
+  const { data: collections, isLoading: collectionLoading } = useQuery<
+    Product[]
+  >({
+    queryKey: ["collections", userId], // Include userId in the query key
+    queryFn: () => (userId ? fetchCollection(userId) : Promise.resolve([])), // Fallback to empty array if userId is undefined
+  });
+
   return (
     <div>
       <Navbar />
-      <section className="p-3 md:px-24 md:py-12">
-        <StatsSection />
-        <HistorySection />
-        <TransactionSection />
-        <div className="mt-3 md:mt-6">
-          <CollectionList title="Collection" collections={collections} />
-        </div>
-        <div className="mt-3 md:mt-6">
-          <ProductList title="Swapping" products={products} />
-        </div>
-      </section>
+      {isLoading ? (
+        <div className="h-screen w-screen">Loading</div>
+      ) : (
+        <section className="p-3 md:px-24 md:py-12">
+          <StatsSection />
+          <HistorySection />
+          <TransactionSection />
+          <div className="mt-3 md:mt-6">
+            {collectionLoading ? (
+              <div>Loading</div>
+            ) : (
+              <CollectionList
+                title="Collection"
+                collections={collections || []}
+              />
+            )}
+          </div>
+          <div className="mt-3 md:mt-6">
+            {productLoading ? (
+              <div>Loading</div>
+            ) : (
+              <ProductList title="Swapping" products={products || []} />
+            )}
+          </div>
+        </section>
+      )}
       <Footer />
     </div>
   );
 }
-
-const collections: Collection[] = [
-  {
-    id: "1",
-    name: "T-shirt with Tape Details",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "2",
-    name: "Skinny Fit Jeans",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "3",
-    name: "Checkered Shirt",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "4",
-    name: "Sleeve Striped T-shirt",
-    description: "Lorem de la leru monte sha fork",
-    category: "Y2K",
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-];
-
-const products: Product[] = [
-  {
-    id: "1",
-    name: "T-shirt with Tape Details",
-    description: "Lorem de la leru monte sha fork",
-    price: 120,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "2",
-    name: "Skinny Fit Jeans",
-    description: "Lorem de la leru monte sha fork",
-    price: 240,
-    originalPrice: 260,
-    discountPercentage: 30,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "3",
-    name: "Checkered Shirt",
-    description: "Lorem de la leru monte sha fork",
-    price: 180,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-  {
-    id: "4",
-    name: "Sleeve Striped T-shirt",
-    description: "Lorem de la leru monte sha fork",
-    price: 130,
-    originalPrice: 200,
-    discountPercentage: 30,
-    imageUrl:
-      "https://i.pinimg.com/736x/f0/0e/2a/f00e2afb62a18b52ee0bdf61ca251548.jpg",
-  },
-];

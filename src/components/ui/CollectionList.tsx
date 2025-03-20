@@ -1,12 +1,12 @@
 import React from "react";
 import Heading from "./Heading";
-import { Collection } from "../../Schema";
+import { Product } from "../../Schema";
 import { CollectionCard } from "./CollectionCard";
 import { Link, useLocation } from "react-router-dom";
 
 interface CollectionListProps {
   title: string;
-  collections: Collection[];
+  collections: Product[];
 }
 export const CollectionList: React.FC<CollectionListProps> = ({
   title,
@@ -22,7 +22,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({
         {firstSegment == "dashboard" && (
           <Link
             className="bg-[#A8BBA3] px-6 py-2 rounded-lg text-xs text-white"
-            to={`/transaction/all`}
+            to={`/dashboard/products`}
           >
             All
           </Link>
