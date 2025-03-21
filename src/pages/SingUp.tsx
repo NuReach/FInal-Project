@@ -107,6 +107,7 @@ export default function SignUpPage() {
           name: values.name,
           phone: values.phone,
           address: values.address,
+          email: values.email,
           image_url: imageUrl, // Store image URL
         },
       ]);

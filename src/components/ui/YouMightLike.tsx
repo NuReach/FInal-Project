@@ -37,7 +37,7 @@ const YouMightLike: React.FC<YouMightLikeProps> = ({
     },
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div>""</div>;
   if (error) return <div>Error loading related products</div>;
   if (!products || products.length === 0) return null;
 

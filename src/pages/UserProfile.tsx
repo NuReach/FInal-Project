@@ -10,6 +10,7 @@ import useAuth from "../service/useAuth";
 import { Button } from "../components/ui/button";
 import supabase from "../supabaseClient";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "../components/ui/Loading";
 
 const fetchProducts = async (userId: string) => {
   const { data, error } = await supabase
@@ -43,10 +44,30 @@ const fetchCollection = async (userId: string) => {
   return data;
 };
 
+const fetchUserDetail = async (userId: string) => {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("*")
+    .eq("user_id", userId)
+    .single(); // Assuming each user has a single role entry
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
 export default function UserProfile() {
   const { data } = useAuth();
   const user = data?.user;
   const { acc_id } = useParams();
+
+  const { data: userDetail, isLoading: userDetailLoading } = useQuery({
+    queryKey: ["userDetail", acc_id], // Include acc_id in the query key
+    queryFn: () => (acc_id ? fetchUserDetail(acc_id) : Promise.resolve([])), // Fallback to empty array if acc_id is undefined
+  });
+
   const { data: products, isLoading: productLoading } = useQuery<Product[]>({
     queryKey: ["products", acc_id], // Include acc_id in the query key
     queryFn: () => (acc_id ? fetchProducts(acc_id) : Promise.resolve([])), // Fallback to empty array if acc_id is undefined
@@ -59,24 +80,57 @@ export default function UserProfile() {
     queryFn: () => (acc_id ? fetchCollection(acc_id) : Promise.resolve([])), // Fallback to empty array if acc_id is undefined
   });
 
+  const { data: productCount } = useQuery({
+    queryKey: ["productCount", acc_id],
+    queryFn: async () => {
+      if (!userDetail) return null;
+      const { count, error } = await supabase
+        .from("products")
+        .select("id", { count: "exact" })
+        .eq("user_id", acc_id);
+      if (error) throw new Error(error.message);
+      return count;
+    },
+    enabled: !!userDetail,
+  });
+
+  const { data: availableProductCount } = useQuery({
+    queryKey: ["availableProductCount", acc_id],
+    queryFn: async () => {
+      if (!userDetail) return null;
+      const { count, error } = await supabase
+        .from("products")
+        .select("id", { count: "exact" })
+        .eq("user_id", acc_id)
+        .eq("status", "available");
+      if (error) throw new Error(error.message);
+      return count;
+    },
+    enabled: !!userDetail,
+  });
+
   return (
     <div>
       <Navbar />
       {user ? (
         <section className="p-3 md:px-24 md:py-12">
-          <ProfileCard
-            name="Hong Nnureach"
-            email="hongnnureach@gmail.com"
-            phone="078441752"
-            avatarUrl="https://cdn-icons-png.flaticon.com/512/921/921347.png"
-            all={10}
-            swap={10}
-            successRate={90}
-            review={30}
-          />
+          {userDetailLoading ? (
+            ""
+          ) : (
+            <ProfileCard
+              name={userDetail.name}
+              email={userDetail.email}
+              phone={userDetail.phone}
+              avatarUrl={userDetail.image_url}
+              all={productCount ?? 0}
+              swap={availableProductCount ?? 0}
+              successRate={90}
+              review={30}
+            />
+          )}
           <div className="mt-3 md:mt-6">
             {collectionLoading ? (
-              <div>Loading</div>
+              ""
             ) : (
               <CollectionList
                 title="Collection"
@@ -86,7 +140,9 @@ export default function UserProfile() {
           </div>
           <div className="mt-3 md:mt-6">
             {productLoading ? (
-              <div>Loading</div>
+              <div>
+                <Loading />
+              </div>
             ) : (
               <ProductList title="Swapping" products={products || []} />
             )}

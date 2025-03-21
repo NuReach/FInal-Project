@@ -75,7 +75,7 @@ export default function Navbar() {
               />
             </svg>
           </Link>
-          <Link to={"/user/profile"}>
+          <Link to={`/user/profile/${auth?.user?.id}`}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -157,7 +157,7 @@ export default function Navbar() {
           <button>New Arrival</button>
           <button>Category</button>
           <div className="flex flex-col justify-between gap-3 mt-3">
-            <Link to={`/user/profile`} className="flex gap-2">
+            <Link to={`/user/profile/${auth?.user?.id}`} className="flex gap-2">
               <Button className="w-full">Profile</Button>
             </Link>
             <Link to={`/cart`} className="flex gap-2">

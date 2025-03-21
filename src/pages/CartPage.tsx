@@ -1,4 +1,3 @@
-import { Trash2 } from "lucide-react";
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import Heading from "../components/ui/Heading";
@@ -43,6 +42,7 @@ const Cardpage = () => {
   const discount = Math.floor(subtotal * 0.2);
   const deliveryFee = 20;
   const total = subtotal - discount + deliveryFee;
+  console.log(total);
 
   return (
     <div>
@@ -75,44 +75,24 @@ const Cardpage = () => {
                         <p className="text-sm text-gray-600">
                           Color: {item.color}
                         </p>
+                        <p className="text-sm text-gray-600">
+                          User: {item.color}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <p className="font-semibold">{item.price} coins</p>
-                      <button className="text-red-500 hover:text-red-700">
-                        <Trash2 size={20} />
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-4">
+                        <p className="font-semibold">{item.price} coins</p>
+                      </div>
+                      <button className="text-xs px-1 w-full bg-black text-white rounded-lg py-2 mt-3">
+                        Check Out
+                      </button>
+                      <button className="text-xs px-1 w-full bg-red-600 text-white rounded-lg py-2 mt-3">
+                        Remove
                       </button>
                     </div>
                   </div>
                 ))}
-              </div>
-
-              {/* Order Summary */}
-              <div className="w-full bg-white p-6 border rounded-lg text-xs md:text-lg">
-                <h2 className="text-2xl font-semibold mb-4">Order Summary</h2>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-gray-700">
-                    <span>Subtotal</span>
-                    <span className="font-semibold">{subtotal} coins</span>
-                  </div>
-                  <div className="flex justify-between text-red-600">
-                    <span>Discount (-20%)</span>
-                    <span className="font-semibold">-{discount} coins</span>
-                  </div>
-                  <div className="flex justify-between text-gray-700">
-                    <span>Delivery Fee</span>
-                    <span className="font-semibold">{deliveryFee} coins</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between text-lg font-bold">
-                    <span>Total</span>
-                    <span>{total} coins</span>
-                  </div>
-                </div>
-                <Link to={`/checkout`}>
-                  <button className="mt-4 w-full bg-[#A8BBA3] text-white font-semibold py-2 rounded-lg  ">
-                    Go to Checkout →
-                  </button>
-                </Link>
               </div>
             </div>
           </div>

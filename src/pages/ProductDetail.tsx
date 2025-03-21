@@ -96,7 +96,10 @@ export default function ProductDetail() {
                 <strong>Usage:</strong> {product.usage}
               </p>
               <p>
-                <strong>Other:</strong> {product.other_messages}
+                <strong>Other:</strong>{" "}
+                {product.other_message.length == 0
+                  ? "No Message"
+                  : product.other_message}
               </p>
             </div>
             <div className="flex items-center gap-2 mt-4">

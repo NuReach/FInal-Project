@@ -122,7 +122,7 @@ export default function CollecctionDetail() {
         </div>
       )}
       <YouMightLike
-        product_category={product.category}
+        product_category={product?.category || ""}
         product_id={product_id || ""}
       />
       <Footer />
