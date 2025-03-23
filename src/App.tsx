@@ -14,6 +14,7 @@ import CreateProductPage from "./pages/CreateProductPage";
 import UpdateProductPage from "./pages/UpdateProductPage";
 import CollectionsTablePage from "./pages/DashboardCollectionPage";
 import CollecctionDetail from "./pages/CollectionDetail";
+import AllProductPage from "./pages/AllProductPage";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/product/:product_id" element={<ProductDetail />} />
+        <Route path="/products/all" element={<AllProductPage />} />
         <Route path="/collection/:product_id" element={<CollecctionDetail />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />

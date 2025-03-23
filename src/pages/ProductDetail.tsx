@@ -1,13 +1,18 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 import YouMightLike from "../components/ui/YouMightLike";
 import supabase from "../supabaseClient";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Loading from "../components/ui/Loading";
+import useAuth from "../service/useAuth";
+import { toast } from "react-toastify";
 
 export default function ProductDetail() {
   const { product_id } = useParams<{ product_id: string }>();
+  const { data: auth } = useAuth();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", product_id],
     queryFn: async () => {
@@ -41,6 +46,55 @@ export default function ProductDetail() {
       };
     },
   });
+
+  const { mutateAsync: addToCartMutation, isPending } = useMutation({
+    mutationFn: async () => {
+      // Step 1: Add to cart_items
+      const { error: cartError } = await supabase.from("cart_items").insert([
+        {
+          product_id: product_id,
+          user_id: auth?.user?.id,
+          quantity: 1,
+          discount: product.discount,
+          total: ((product.price * (100 - product.discount)) / 100) * 1,
+        },
+      ]);
+      if (cartError) throw cartError;
+
+      const { error: stockError } = await supabase.rpc("decrement_stock", {
+        product_id_param: product_id,
+      });
+      if (stockError) throw stockError;
+    },
+    onSuccess: () => {
+      // Step 3: Revalidate product queries
+      queryClient.invalidateQueries({
+        queryKey: ["products", "cart_item_count"],
+      }); // Refresh product list
+
+      // Step 4: Show success toast
+      toast.success("Added to cart successfully!", {
+        position: "top-right",
+        autoClose: 3000, // 3 seconds
+      });
+
+      // Step 5: Navigate to home
+      navigate("/"); // Slight delay for better UX
+    },
+    onError: (error) => {
+      console.error("Error adding to cart:", error.message);
+
+      // Show error toast
+      toast.error(`Error: ${error.message}`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    },
+  });
+
+  const handleAddToCart = async () => {
+    await addToCartMutation();
+  };
 
   return (
     <div>
@@ -96,6 +150,9 @@ export default function ProductDetail() {
                 <strong>Usage:</strong> {product.usage}
               </p>
               <p>
+                <strong>Stock:</strong> {product.stock}
+              </p>
+              <p>
                 <strong>Other:</strong>{" "}
                 {product.other_message.length == 0
                   ? "No Message"
@@ -120,9 +177,17 @@ export default function ProductDetail() {
                 </div>
               </Link>
             </div>
-            <button className="mt-6 bg-[#A8BBA3] text-white py-2 text-sm  px-12 rounded-full">
-              Add to Cart
-            </button>
+            {auth && auth.user?.id == product.user_roles[0].user_id ? (
+              ""
+            ) : (
+              <button
+                disabled={isPending || !auth?.user}
+                onClick={handleAddToCart}
+                className="mt-6 bg-[#A8BBA3] text-white py-2 text-sm  px-12 rounded-full"
+              >
+                Add to Cart
+              </button>
+            )}
           </div>
         </div>
       )}

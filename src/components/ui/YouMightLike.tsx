@@ -4,6 +4,7 @@ import Heading from "./Heading";
 import { ProductCard } from "./ProductCard";
 import { Product } from "../../Schema";
 import supabase from "../../supabaseClient";
+import { Link } from "react-router-dom";
 
 interface YouMightLikeProps {
   product_id: string;
@@ -49,9 +50,11 @@ const YouMightLike: React.FC<YouMightLikeProps> = ({
           <ProductCard key={index} product={product} />
         ))}
       </div>
-      <button className="border p-3 rounded-full text-xs px-9 my-6">
-        View All
-      </button>
+      <Link to={`/products/all`}>
+        <button className="border p-3 rounded-full text-xs px-9 my-6">
+          View All
+        </button>
+      </Link>
       <div className="h-[1px] w-full bg-gray-400 md:px-12"></div>
     </div>
   );

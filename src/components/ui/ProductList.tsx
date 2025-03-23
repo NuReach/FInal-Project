@@ -33,9 +33,11 @@ export const ProductList: React.FC<ProductListProps> = ({
           <ProductCard key={index} product={product} />
         ))}
       </div>
-      <button className="border p-3 rounded-full text-xs px-9 my-6">
-        View All
-      </button>
+      <Link to={`/products/all`}>
+        <button className="border p-3 rounded-full text-xs px-9 my-6">
+          View All
+        </button>
+      </Link>
       <div className="h-[1px] w-full bg-gray-400 md:px-12"></div>
     </div>
   );

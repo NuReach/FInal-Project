@@ -8,6 +8,7 @@ import { ProductList } from "../components/ui/ProductList";
 import { Product } from "../Schema";
 import useAuth from "../service/useAuth";
 import { CollectionList } from "../components/ui/CollectionList";
+import Loading from "../components/ui/Loading";
 
 const fetchProducts = async () => {
   const { data, error } = await supabase
@@ -66,14 +67,16 @@ function Home() {
       <section className="p-3 md:px-24 md:py-12">
         <div className="mt-3 md:mt-6">
           {productLoading ? (
-            <div>Loading</div>
+            <div>
+              <Loading />
+            </div>
           ) : (
             <ProductList title="Swapping" products={products || []} />
           )}
         </div>
         <div className="mt-3 md:mt-6">
           {collectionLoading ? (
-            <div>Loading</div>
+            ""
           ) : (
             <CollectionList
               title="Collection"

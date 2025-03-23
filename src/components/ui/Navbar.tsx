@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { data: auth } = useAuth();
+  const user_id = auth?.user?.id;
 
   const { mutateAsync: signOutMutation } = useSignOut();
 
@@ -24,6 +25,23 @@ export default function Navbar() {
       return coins;
     },
   });
+  const { data: cartItemCount } = useQuery({
+    queryKey: ["cart_item_count", user_id],
+    queryFn: async () => {
+      if (!user_id) return 0; // If user is not logged in, return 0
+
+      // Query to count the cart items for the user
+      const { count, error } = await supabase
+        .from("cart_items")
+        .select("id", { count: "exact" }) // count the number of cart items
+        .eq("user_id", user_id);
+
+      if (error) throw error;
+
+      return count || 0; // Return the count of cart items (default to 0 if no items found)
+    },
+  });
+
   const handleSignOut = async () => {
     await signOutMutation();
   };
@@ -60,7 +78,14 @@ export default function Navbar() {
             className="bg-transparent outline-none w-full text-gray-700"
           />
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 relative">
+          {cartItemCount ? (
+            <div className="bg-red-600 text-white text-[9px] rounded-full flex justify-center items-center font-bold h-5 w-5 absolute -top-3 left-3">
+              {cartItemCount}
+            </div>
+          ) : (
+            ""
+          )}
           <Link to={`/cart`}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
