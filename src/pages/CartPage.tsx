@@ -1,77 +1,33 @@
 import Navbar from "../components/ui/Navbar";
 import Footer from "../components/ui/Footer";
 import Heading from "../components/ui/Heading";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../service/useAuth";
 import { Button } from "../components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import supabase from "../supabaseClient";
 import { toast } from "react-toastify";
-
-// Define your types for products, cart items, and cart here
-interface ProductImage {
-  image_url: string;
-}
-
-interface UserRole {
-  id: number;
-  name: string;
-  role: string;
-  email: string;
-  phone: string;
-  address: string;
-  user_id: string;
-  image_url: string;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  type: string;
-  brand: string;
-  price: number;
-  stock: number;
-  usage: string;
-  status: string;
-  user_id: string;
-  category: string;
-  discount: number;
-  condition: number;
-  image_url: string;
-  created_at: string;
-  updated_at: string;
-  user_roles: UserRole;
-  description: string;
-  other_message: string;
-  product_images: ProductImage[];
-}
-
-interface CartItem {
-  id: number;
-  created_at: string;
-  product_id: string;
-  user_id: string;
-  quantity: number;
-  total: number;
-  discount: number;
-  products: Product;
-  user_roles: UserRole;
-}
-
-interface Cart {
-  seller_id: string;
-  seller_name: string;
-  cartItems: CartItem[];
-  total: number;
-}
+import { Cart } from "../Schema";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../components/ui/alert-dialog";
 
 const Cardpage = () => {
   const { data: auth } = useAuth();
   const user = auth?.user;
   const user_id = user?.id;
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const { data: cart_items, isLoading } = useQuery<Cart[]>({
+  const { data: cart_items } = useQuery<Cart[]>({
     queryKey: ["cart_items", user_id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -87,6 +43,7 @@ const Cardpage = () => {
           user_roles(*)
         `
         )
+        .order("created_at", { ascending: false })
         .eq("user_id", user_id);
 
       if (error) throw error;
@@ -118,7 +75,7 @@ const Cardpage = () => {
 
   const handleCheckOut = async (group: Cart) => {
     console.log(group);
-    // Add your checkout logic here
+    navigate("/checkout", { state: { group } });
   };
 
   const handleDelete = async (group: Cart) => {
@@ -176,10 +133,6 @@ const Cardpage = () => {
       toast.error("An error occurred while removing cart items.");
     }
   };
-
-  if (isLoading) {
-    return <div>Loading...</div>; // Loading state
-  }
 
   return (
     <div>
@@ -242,18 +195,41 @@ const Cardpage = () => {
 
                       <div className="flex flex-col justify-end w-full items-end font-semibold mt-4">
                         <div>Total: {group.total} coins</div>
+
                         <button
                           onClick={() => handleCheckOut(group)}
                           className="bg-black rounded-lg px-6 py-2 text-white text-xs w-36 mt-3"
                         >
                           Check Out
                         </button>
-                        <button
-                          onClick={() => handleDelete(group)}
-                          className="bg-red-600 rounded-lg px-6 py-2 text-white text-xs w-36 mt-1"
-                        >
-                          Remove
-                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger>
+                            <button className="bg-red-600 rounded-lg px-6 py-2 text-white text-xs w-36 mt-1">
+                              Remove
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Are you absolutely sure?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently remove your cartitems and remove
+                                your data from our servers.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-red-600 text-white"
+                                onClick={() => handleDelete(group)}
+                              >
+                                Yes
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   ))

@@ -6,7 +6,6 @@ import CategorySection from "../components/ui/CategorySection";
 import Footer from "../components/ui/Footer";
 import { ProductList } from "../components/ui/ProductList";
 import { Product } from "../Schema";
-import useAuth from "../service/useAuth";
 import { CollectionList } from "../components/ui/CollectionList";
 import Loading from "../components/ui/Loading";
 
@@ -45,9 +44,6 @@ const fetchCollection = async () => {
 };
 
 function Home() {
-  const { data: user, isLoading } = useAuth();
-  console.log(user, isLoading);
-
   const { data: products, isLoading: productLoading } = useQuery<Product[]>({
     queryKey: ["products"],
     queryFn: fetchProducts,

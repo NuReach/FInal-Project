@@ -221,3 +221,60 @@ export const phnomPenhDistricts = [
   "Khan Saensokh",
   "Khan Kambol",
 ];
+
+// Define your types for products, cart items, and cart here
+interface ProductImage {
+  image_url: string;
+}
+
+interface UserRole {
+  id: number;
+  name: string;
+  role: string;
+  email: string;
+  phone: string;
+  address: string;
+  user_id: string;
+  image_url: string;
+}
+
+interface ProductCart {
+  id: string;
+  name: string;
+  type: string;
+  brand: string;
+  price: number;
+  stock: number;
+  usage: string;
+  status: string;
+  user_id: string;
+  category: string;
+  discount: number;
+  condition: number;
+  image_url: string;
+  created_at: string;
+  updated_at: string;
+  user_roles: UserRole;
+  description: string;
+  other_message: string;
+  product_images: ProductImage[];
+}
+
+export interface CartItem {
+  id: number;
+  created_at: string;
+  product_id: string;
+  user_id: string;
+  quantity: number;
+  total: number;
+  discount: number;
+  products: ProductCart;
+  user_roles: UserRole;
+}
+
+export interface Cart {
+  seller_id: string;
+  seller_name: string;
+  cartItems: CartItem[];
+  total: number;
+}

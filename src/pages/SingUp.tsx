@@ -188,23 +188,6 @@ Users can purchase goods using a unique point-based system, where 1 dollar is eq
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input
-                      className="text-xs"
-                      placeholder="Enter your address"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
