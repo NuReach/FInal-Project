@@ -107,114 +107,123 @@ const CheckoutPage = () => {
     return () => clearTimeout(delayDebounce);
   }, [couponInput]);
 
-  const { mutateAsync: submitCheckOutMutation } = useMutation({
-    mutationFn: async ({
-      values,
-      group,
-      discount,
-    }: {
-      values: z.infer<typeof shippingFormSchema>;
-      group: Cart;
-      discount: number;
-    }) => {
-      if (!group) throw new Error("Cart group not found.");
-      if (typeof group?.total !== "number")
-        throw new Error("Cart total is invalid");
-      if (typeof discount !== "number") throw new Error("Discount is invalid");
+  const { mutateAsync: submitCheckOutMutation, isPending: checkOutLoading } =
+    useMutation({
+      mutationFn: async ({
+        values,
+        group,
+        discount,
+      }: {
+        values: z.infer<typeof shippingFormSchema>;
+        group: Cart;
+        discount: number;
+      }) => {
+        if (!group) throw new Error("Cart group not found.");
+        if (typeof group?.total !== "number")
+          throw new Error("Cart total is invalid");
+        if (typeof discount !== "number")
+          throw new Error("Discount is invalid");
 
-      if (!balance) {
-        throw new Error("Balance is still loading. Please wait.");
-      }
-
-      const userBalance = Number(balance?.balance ?? 0);
-      const orderTotal = group.total - (group.total * (discount ?? 0)) / 100;
-
-      if (userBalance < orderTotal || !userBalance)
-        throw new Error(`Insufficient balance. Your balance is ${userBalance}`);
-
-      console.log(discount, couponId);
-
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert([
-          {
-            user_id: auth?.user?.id,
-            seller_id: group.seller_id,
-            order_date: new Date().toISOString(),
-            total_amount: group.total,
-            discount: discount,
-            coupon_id: couponId || null,
-
-            shipping_address:
-              values.fullname +
-              " - " +
-              values.location +
-              " - " +
-              values.phoneNumber,
-            address: values.address,
-            location: values.location,
-            note: values.note,
-            payment_status: "Completed",
-            order_status: "pending",
-          },
-        ])
-        .select()
-        .single();
-
-      if (orderError || !order) throw new Error("Failed to create order");
-
-      // Create Order Items
-      const orderItems = group.cartItems.map((item) => ({
-        order_id: order.id,
-        product_id: item.product_id,
-        quantity: item.quantity,
-        discount: item.products.discount,
-        price: item.products.price,
-      }));
-
-      const { error: orderItemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-
-      if (orderItemsError) throw new Error("Failed to insert order items");
-
-      // Deduct Balance
-      const { error: balanceError } = await supabase
-        .from("wallets")
-        .update({ balance: userBalance - orderTotal })
-        .eq("user_id", auth?.user?.id);
-
-      if (balanceError) throw new Error("Failed to update balance");
-
-      for (const item of group.cartItems) {
-        // Delete the cart item
-        const { data: deleteData, error: deleteError } = await supabase
-          .from("cart_items")
-          .delete()
-          .eq("id", item.id); // Delete by cart item ID
-        console.log(deleteData);
-
-        if (deleteError) {
-          throw deleteError;
+        if (!balance) {
+          throw new Error("Balance is still loading. Please wait.");
         }
-      }
 
-      return order;
-    },
+        const userBalance = Number(balance?.balance ?? 0);
+        const orderTotal = group.total - (group.total * (discount ?? 0)) / 100;
 
-    onSuccess: () => {
-      toast.success("Order placed successfully!");
-      navigate(`/`);
-      queryClient.invalidateQueries({
-        queryKey: ["cart_items", "products", "cart_item_count", "user-balance"],
-      });
-      // Optionally: clear cart or navigate
-    },
+        if (userBalance < orderTotal || !userBalance)
+          throw new Error(
+            `Insufficient balance. Your balance is ${userBalance}`
+          );
 
-    onError: (error) => {
-      toast.error(error.message || "Something went wrong.");
-    },
-  });
+        console.log(discount, couponId);
+
+        const { data: order, error: orderError } = await supabase
+          .from("orders")
+          .insert([
+            {
+              user_id: auth?.user?.id,
+              seller_id: group.seller_id,
+              order_date: new Date().toISOString(),
+              total_amount: group.total,
+              discount: discount,
+              coupon_id: couponId || null,
+
+              shipping_address:
+                values.fullname +
+                " - " +
+                values.location +
+                " - " +
+                values.phoneNumber,
+              address: values.address,
+              location: values.location,
+              note: values.note,
+              payment_status: "Completed",
+              order_status: "pending",
+            },
+          ])
+          .select()
+          .single();
+
+        if (orderError || !order) throw new Error("Failed to create order");
+
+        // Create Order Items
+        const orderItems = group.cartItems.map((item) => ({
+          order_id: order.id,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          discount: item.products.discount,
+          price: item.products.price,
+        }));
+
+        const { error: orderItemsError } = await supabase
+          .from("order_items")
+          .insert(orderItems);
+
+        if (orderItemsError) throw new Error("Failed to insert order items");
+
+        // Deduct Balance
+        const { error: balanceError } = await supabase
+          .from("wallets")
+          .update({ balance: userBalance - orderTotal })
+          .eq("user_id", auth?.user?.id);
+
+        if (balanceError) throw new Error("Failed to update balance");
+
+        for (const item of group.cartItems) {
+          // Delete the cart item
+          const { data: deleteData, error: deleteError } = await supabase
+            .from("cart_items")
+            .delete()
+            .eq("id", item.id); // Delete by cart item ID
+          console.log(deleteData);
+
+          if (deleteError) {
+            throw deleteError;
+          }
+        }
+
+        return order;
+      },
+
+      onSuccess: () => {
+        toast.success("Order placed successfully!");
+        navigate(`/`);
+        queryClient.invalidateQueries({
+          queryKey: [
+            "cart_items",
+            "products",
+            "cart_item_count",
+            "user-balance",
+          ],
+        });
+        // Optionally: clear cart or navigate
+      },
+
+      onError: (error) => {
+        toast.error(error.message || "Something went wrong.");
+      },
+    });
 
   async function onSubmit(values: z.infer<typeof shippingFormSchema>) {
     if (!group) return toast.error("Cart group not found.");
@@ -431,8 +440,9 @@ const CheckoutPage = () => {
                     type="submit"
                     form="shipping-form" // ← This links the button to the form
                     className="w-full  text-sm bg-[#A8BBA3] my-3"
+                    disabled={checkOutLoading}
                   >
-                    Pay Now
+                    {checkOutLoading ? "Paying..." : "Pay Now"}
                   </Button>
                 </div>
               </div>

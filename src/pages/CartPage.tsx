@@ -52,7 +52,8 @@ const Cardpage = () => {
       const groupedCart = data.reduce((acc, item) => {
         const sellerId = item.products?.user_id || "Unknown Seller ID";
         const sellerName = item.products?.user_roles?.name || "Unknown Seller";
-        const price = item.products?.price || 0;
+        const price =
+          (item.products?.price * (100 - item.products.discount)) / 100 || 0;
 
         const groupKey = `${sellerId}__${sellerName}`;
         if (!acc[groupKey]) {
@@ -186,8 +187,17 @@ const Cardpage = () => {
                             </div>
                           </div>
                           <div className="flex flex-col items-end">
+                            {item.products.discount > 0 && (
+                              <p className="line-through">
+                                {item.products.price}
+                                {""}coins
+                              </p>
+                            )}
                             <p className="font-semibold">
-                              {item.products?.price} coins
+                              {(item.products?.price *
+                                (100 - item.products.discount)) /
+                                100}{" "}
+                              coins
                             </p>
                           </div>
                         </div>

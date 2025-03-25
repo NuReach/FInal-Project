@@ -9,6 +9,7 @@ import { TransactionSection } from "../components/ui/Transaction";
 import supabase from "../supabaseClient";
 import { Product } from "../Schema";
 import useAuth from "../service/useAuth";
+import Loading from "../components/ui/Loading";
 
 const fetchProducts = async (userId: string) => {
   const { data, error } = await supabase
@@ -63,7 +64,7 @@ export default function DashboardPage() {
     <div>
       <Navbar />
       {isLoading ? (
-        <div className="h-screen w-screen">Loading</div>
+        <Loading />
       ) : (
         <section className="p-3 md:px-24 md:py-12">
           <StatsSection />
