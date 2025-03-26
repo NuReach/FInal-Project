@@ -15,6 +15,7 @@ import UpdateProductPage from "./pages/UpdateProductPage";
 import CollectionsTablePage from "./pages/DashboardCollectionPage";
 import CollecctionDetail from "./pages/CollectionDetail";
 import AllProductPage from "./pages/AllProductPage";
+import OrderDetail from "./pages/OrderDetail";
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
           path="/dashboard/product/edit/:id"
           element={<UpdateProductPage />}
         />
+        <Route path="/dashboard/orderDetail" element={<OrderDetail />} />
         <Route path="/add_coint" element={<AddCoinPage />} />
         <Route path="/dashboard/:user_id" element={<DashboardPage />} />
         <Route path="/signup" element={<SingUp />} />

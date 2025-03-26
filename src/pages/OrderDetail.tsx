@@ -38,12 +38,12 @@ const shippingFormSchema = z.object({
   note: z.string().optional(),
 });
 
-const CheckoutPage = () => {
+const OrderDetail = () => {
   const { data: auth } = useAuth();
   const location = useLocation();
   const { group } = location.state || {};
 
-  const [couponInput, setCouponInput] = useState("");
+  const [couponInput] = useState("");
   const [couponId, setCouponId] = useState("");
   const [discount, setDiscount] = useState<number | null>(0);
   const [error, setError] = useState("");
@@ -67,11 +67,17 @@ const CheckoutPage = () => {
   const form = useForm({
     resolver: zodResolver(shippingFormSchema),
     defaultValues: {
-      fullname: "",
-      address: "",
-      location: "",
-      phoneNumber: "",
-      note: "",
+      fullname:
+        group.shipping_address && typeof group.shipping_address === "string"
+          ? group.shipping_address.split(" - ")[0] || ""
+          : "",
+      address: group.address,
+      location: group.location,
+      phoneNumber:
+        group.shipping_address && typeof group.shipping_address === "string"
+          ? group.shipping_address.split(" - ")[2] || ""
+          : "",
+      note: group.note,
     },
   });
 
@@ -216,7 +222,6 @@ const CheckoutPage = () => {
             "user-balance",
           ],
         });
-        // Optionally: clear cart or navigate
       },
 
       onError: (error) => {
@@ -232,6 +237,8 @@ const CheckoutPage = () => {
       discount: discount ?? 0,
     });
   }
+
+  console.log(group);
 
   return (
     <div>
@@ -260,6 +267,7 @@ const CheckoutPage = () => {
                             <FormLabel>Fullname</FormLabel>
                             <FormControl>
                               <Input
+                                disabled={true}
                                 className="text-xs"
                                 placeholder="Enter your full name"
                                 {...field}
@@ -280,6 +288,7 @@ const CheckoutPage = () => {
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
+                              disabled
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -306,6 +315,7 @@ const CheckoutPage = () => {
                             <FormLabel>Location</FormLabel>
                             <FormControl>
                               <Input
+                                disabled={true}
                                 className="text-xs"
                                 placeholder="Ex St468 Limkokwing University"
                                 {...field}
@@ -325,6 +335,7 @@ const CheckoutPage = () => {
                             <FormLabel>Phone Number</FormLabel>
                             <FormControl>
                               <Input
+                                disabled={true}
                                 className="text-xs"
                                 placeholder="Enter your phone number"
                                 {...field}
@@ -344,6 +355,7 @@ const CheckoutPage = () => {
                             <FormLabel>Note (optional)</FormLabel>
                             <FormControl>
                               <Input
+                                disabled={true}
                                 className="text-xs"
                                 placeholder="Any additional note"
                                 {...field}
@@ -359,7 +371,7 @@ const CheckoutPage = () => {
                 <div className="w-full bg-white p-3 md:p-9 border rounded-lg text-xs md:text-lg">
                   <p>Seller : {group.seller_name}</p>
                   <div className=" ">
-                    {group.cartItems.map((item: CartItem) => (
+                    {group.order_items.map((item: CartItem) => (
                       <div
                         key={item.id}
                         className="flex items-center justify-between border-b py-4 text-xs md:text-lg"
@@ -389,19 +401,21 @@ const CheckoutPage = () => {
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-4 flex-col">
-                          {item.products.discount > 0 && (
-                            <p className="line-through">
-                              {item.products.price}
-                              {""}coins
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-4 flex-col">
+                            {item.products.discount > 0 && (
+                              <p className="line-through">
+                                {item.products.price}
+                                {""}coins
+                              </p>
+                            )}
+                            <p className="font-semibold">
+                              {(item.products?.price *
+                                (100 - item.products.discount)) /
+                                100}{" "}
+                              coins
                             </p>
-                          )}
-                          <p className="font-semibold">
-                            {(item.products?.price *
-                              (100 - item.products.discount)) /
-                              100}{" "}
-                            coins
-                          </p>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -410,23 +424,29 @@ const CheckoutPage = () => {
                   <div className="space-y-6">
                     <div className="flex justify-between text-gray-700">
                       <span>Subtotal</span>
-                      <span className="font-semibold">{group.total} coins</span>
+                      <span className="font-semibold">
+                        {group.total_amount} coins
+                      </span>
                     </div>
                     <div className="mt-24">
                       <Input
                         className="text-xs "
-                        placeholder="Apply Coupon"
-                        onChange={(e) => setCouponInput(e.target.value)}
+                        disabled={true}
+                        placeholder={
+                          !group.coupon_id ? "No Coupon" : group.coupons.name
+                        }
                       />
                     </div>
                     <div className="flex justify-between text-red-600">
                       <span>
                         Discount{" "}
-                        {discount && discount > 0 ? `(-${discount}%)` : `(-0%)`}
+                        {group.discount && group.discount > 0
+                          ? `(-${group.discount}%)`
+                          : `(-0%)`}
                       </span>
                       <span className="font-semibold">
-                        {discount && discount > 0
-                          ? `-${(group.total * discount) / 100}`
+                        {group.discount && group.discount > 0
+                          ? `-${(group.total_amount * group.discount) / 100}`
                           : -0}{" "}
                         coins
                       </span>
@@ -434,9 +454,10 @@ const CheckoutPage = () => {
                     <div className="border-t pt-2 flex justify-between text-lg font-bold">
                       <span>Total</span>
                       <span>
-                        {discount && discount > 0
-                          ? group.total - (group.total * discount) / 100
-                          : group.total}{" "}
+                        {group.discount && group.discount > 0
+                          ? group.total_amount -
+                            (group.total_amount * group.discount) / 100
+                          : group.total_amount}{" "}
                         coins
                       </span>
                     </div>
@@ -445,7 +466,7 @@ const CheckoutPage = () => {
                     type="submit"
                     form="shipping-form" // ← This links the button to the form
                     className="w-full  text-sm bg-[#A8BBA3] my-3"
-                    disabled={checkOutLoading}
+                    disabled={true}
                   >
                     {checkOutLoading ? "Paying..." : "Pay Now"}
                   </Button>
@@ -467,4 +488,4 @@ const CheckoutPage = () => {
   );
 };
 
-export default CheckoutPage;
+export default OrderDetail;
