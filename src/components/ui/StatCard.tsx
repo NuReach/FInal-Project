@@ -25,6 +25,30 @@ const StatsSection: React.FC = () => {
   const { data } = useAuth();
   const user = data?.user;
 
+  const { data: ratingCount } = useQuery({
+    queryKey: ["ratingCount", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("rating") // Select rating column
+        .eq("acc_id", user?.id);
+
+      if (error) {
+        console.error("Error fetching total rating sum:", error);
+        return 0;
+      }
+
+      // Use reduce() to sum the ratings
+      const totalSum = data.reduce(
+        (sum, review) => sum + (review.rating || 0),
+        0
+      );
+
+      return totalSum;
+    },
+  });
+
   const { data: productCount } = useQuery({
     queryKey: ["productCount", user?.id],
     queryFn: async () => {
@@ -72,7 +96,7 @@ const StatsSection: React.FC = () => {
   const stats = [
     { title: "Total Items", value: productCount, color: "blue" },
     { title: "Remain Items", value: availableProductCount, color: "red" },
-    { title: "Total Point", value: 200, color: "green" },
+    { title: "Total Point", value: ratingCount, color: "green" },
     { title: "Total Coin", value: balance, color: "purple" },
   ];
 

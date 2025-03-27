@@ -11,6 +11,7 @@ import { Button } from "../components/ui/button";
 import supabase from "../supabaseClient";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../components/ui/Loading";
+import UpdateUserSection from "../components/ui/UpdateUserSection";
 
 const fetchProducts = async (userId: string) => {
   const { data, error } = await supabase
@@ -109,6 +110,68 @@ export default function UserProfile() {
     enabled: !!userDetail,
   });
 
+  const { data: ratingCount } = useQuery({
+    queryKey: ["ratingCount", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("rating") // Select rating column
+        .eq("acc_id", user?.id);
+
+      if (error) {
+        console.error("Error fetching total rating sum:", error);
+        return 0;
+      }
+
+      // Use reduce() to sum the ratings
+      const totalSum = data.reduce(
+        (sum, review) => sum + (review.rating || 0),
+        0
+      );
+
+      return totalSum;
+    },
+  });
+
+  const { data: successRate } = useQuery({
+    queryKey: ["successRate", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      // Count all orders for the user
+      const { count: totalOrders, error: totalError } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user?.id);
+
+      if (totalError) {
+        console.error("Error fetching total orders:", totalError);
+        return 0;
+      }
+
+      if (totalOrders === 0) return 0; // Avoid division by zero
+      const total = totalOrders ?? 0;
+
+      // Count only completed orders
+      const { count: completedOrders, error: completedError } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user?.id)
+        .eq("order_status", "Completed");
+
+      if (completedError) {
+        console.error("Error fetching completed orders:", completedError);
+        return 0;
+      }
+      const completed = completedOrders ?? 0;
+
+      // Calculate success rate
+      const successRate = (completed / total) * 100;
+
+      return successRate;
+    },
+  });
+
   return (
     <div>
       <Navbar />
@@ -117,16 +180,21 @@ export default function UserProfile() {
           {userDetailLoading ? (
             ""
           ) : (
-            <ProfileCard
-              name={userDetail.name}
-              email={userDetail.email}
-              phone={userDetail.phone}
-              avatarUrl={userDetail.image_url}
-              all={productCount ?? 0}
-              swap={availableProductCount ?? 0}
-              successRate={90}
-              review={30}
-            />
+            <div>
+              <ProfileCard
+                name={userDetail.name}
+                email={userDetail.email}
+                phone={userDetail.phone}
+                avatarUrl={userDetail.image_url}
+                all={productCount ?? 0}
+                swap={availableProductCount ?? 0}
+                successRate={successRate ?? 0}
+                review={ratingCount ?? 0}
+              />
+              <div className="bg-gray-100 rounded-2xl shadow-md flex  justify-between gap-4 mt-3">
+                <UpdateUserSection />
+              </div>
+            </div>
           )}
           <div className="mt-3 md:mt-6">
             {collectionLoading ? (
@@ -221,7 +289,9 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
           <p className="text-sm font-medium text-gray-700">Swap</p>
         </div>
         <div className="flex-1 min-w-[80px]">
-          <p className="text-2xl text-gray-500 font-medium">{successRate}%</p>
+          <p className="text-2xl text-gray-500 font-medium">
+            {Math.round(successRate)}%
+          </p>
           <p className="text-sm font-medium text-gray-700">Success </p>
         </div>
         <div className="flex-1 min-w-[80px]">
