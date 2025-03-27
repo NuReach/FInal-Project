@@ -10,6 +10,9 @@ import supabase from "../supabaseClient";
 import { Product } from "../Schema";
 import useAuth from "../service/useAuth";
 import Loading from "../components/ui/Loading";
+import Heading from "../components/ui/Heading";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
 
 const fetchProducts = async (userId: string) => {
   const { data, error } = await supabase
@@ -63,31 +66,40 @@ export default function DashboardPage() {
   return (
     <div>
       <Navbar />
-      {isLoading ? (
-        <Loading />
+      {auth ? (
+        isLoading ? (
+          <Loading />
+        ) : (
+          <section className="p-3 md:px-24 md:py-12">
+            <StatsSection />
+            <HistorySection />
+            <TransactionSection />
+            <div className="mt-3 md:mt-6">
+              {collectionLoading ? (
+                <div>Loading</div>
+              ) : (
+                <CollectionList
+                  title="Collection"
+                  collections={collections || []}
+                />
+              )}
+            </div>
+            <div className="mt-3 md:mt-6">
+              {productLoading ? (
+                <div>Loading</div>
+              ) : (
+                <ProductList title="Swapping" products={products || []} />
+              )}
+            </div>
+          </section>
+        )
       ) : (
-        <section className="p-3 md:px-24 md:py-12">
-          <StatsSection />
-          <HistorySection />
-          <TransactionSection />
-          <div className="mt-3 md:mt-6">
-            {collectionLoading ? (
-              <div>Loading</div>
-            ) : (
-              <CollectionList
-                title="Collection"
-                collections={collections || []}
-              />
-            )}
-          </div>
-          <div className="mt-3 md:mt-6">
-            {productLoading ? (
-              <div>Loading</div>
-            ) : (
-              <ProductList title="Swapping" products={products || []} />
-            )}
-          </div>
-        </section>
+        <div className="h-screen w-screen flex flex-col justify-center items-center">
+          <Heading text="Please Sign In First!" className="text-[#A8BBA3]" />
+          <Link to={`/signin`} className="flex gap-2 mt-3">
+            <Button>Sign In</Button>
+          </Link>
+        </div>
       )}
       <Footer />
     </div>

@@ -54,10 +54,9 @@ export default function Navbar() {
           <Heading2 text="Ecoswap" />
         </Link>
         <div className="flex gap-3">
-          <button>Shop</button>
-          <button>Quick Buy</button>
-          <button>New Arrival</button>
-          <button>Category</button>
+          <Link to={`/products/shop`}>Shop</Link>
+          <Link to={`/products/quickbuy`}>Quick Buy</Link>
+          <Link to={`/products/new`}>New Arrival</Link>
         </div>
         <div className="flex bg-gray-100 gap-3 text-xs w-96 items-center p-3 rounded-full">
           <svg

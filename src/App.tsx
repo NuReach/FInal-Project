@@ -16,6 +16,10 @@ import CollectionsTablePage from "./pages/DashboardCollectionPage";
 import CollecctionDetail from "./pages/CollectionDetail";
 import AllProductPage from "./pages/AllProductPage";
 import OrderDetail from "./pages/OrderDetail";
+import AllCollectionPage from "./pages/AllCollectionPage";
+import ShopPage from "./pages/ShopPage";
+import NewArrivalPage from "./pages/NewArrivalPage";
+import QuickBuyPage from "./pages/QuickBuyPage";
 
 function App() {
   return (
@@ -37,6 +41,10 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/product/:product_id" element={<ProductDetail />} />
         <Route path="/products/all" element={<AllProductPage />} />
+        <Route path="/products/shop" element={<ShopPage />} />
+        <Route path="/products/new" element={<NewArrivalPage />} />
+        <Route path="/products/quickbuy" element={<QuickBuyPage />} />
+        <Route path="/collections/all" element={<AllCollectionPage />} />
         <Route path="/collection/:product_id" element={<CollecctionDetail />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />

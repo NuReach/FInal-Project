@@ -4,8 +4,8 @@ import Footer from "../components/ui/Footer";
 import Navbar from "../components/ui/Navbar";
 import supabase from "../supabaseClient";
 import Loading from "../components/ui/Loading";
-import { ProductCard } from "../components/ui/ProductCard";
 import Heading from "../components/ui/Heading";
+import { CollectionCard } from "../components/ui/CollectionCard";
 
 const fetchProducts = async (page: number, limit: number) => {
   const from = (page - 1) * limit;
@@ -15,7 +15,7 @@ const fetchProducts = async (page: number, limit: number) => {
     .from("products")
     .select("*", { count: "exact" })
     .eq("status", "Available")
-    .eq("type", "Product")
+    .eq("type", "Collection")
     .gt("stock", 0)
     .order("created_at", { ascending: false })
     .range(from, to);
@@ -27,7 +27,7 @@ const fetchProducts = async (page: number, limit: number) => {
   return { data, total: count || 0 };
 };
 
-export default function AllProductPage() {
+export default function AllCollectionPage() {
   const [page, setPage] = useState(1);
   const limit = 12;
 
@@ -42,14 +42,14 @@ export default function AllProductPage() {
     <div>
       <Navbar />
       <section className="p-3 md:px-24 md:py-12">
-        <Heading text="Products" className="text-[#A8BBA3]" />
+        <Heading text="Collections" className="text-[#A8BBA3]" />
         {isLoading ? (
           <Loading />
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 md:mt-6">
               {data?.data?.map((product, index) => (
-                <ProductCard key={index} product={product} />
+                <CollectionCard key={index} collection={product} />
               ))}
             </div>
             <div className="flex justify-end mt-6 space-x-4 text-xs">

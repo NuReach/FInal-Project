@@ -12,6 +12,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
   return (
     <Link
       to={`/collection/${collection.id}`}
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className=" rounded-lg p-3 cursor-pointer text-xs md:text-lg"
     >
       <img

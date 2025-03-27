@@ -90,6 +90,8 @@ export const HistorySection: React.FC = () => {
           <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
           <div className="h-6 bg-gray-300 rounded w-1/2"></div>
         </div>
+      ) : ordersUser?.length == 0 ? (
+        <p className="text-gray-500 pl-5">No transactions found.</p>
       ) : (
         <div>
           <div className="overflow-x-auto rounded-lg">
