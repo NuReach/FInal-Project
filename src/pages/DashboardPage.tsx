@@ -13,6 +13,7 @@ import Loading from "../components/ui/Loading";
 import Heading from "../components/ui/Heading";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
+import { SaleSection } from "../components/ui/SaleSection";
 
 const fetchProducts = async (userId: string) => {
   const { data, error } = await supabase
@@ -72,6 +73,7 @@ export default function DashboardPage() {
         ) : (
           <section className="p-3 md:px-24 md:py-12">
             <StatsSection />
+            <SaleSection />
             <HistorySection />
             <TransactionSection />
             <div className="mt-3 md:mt-6">

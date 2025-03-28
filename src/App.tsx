@@ -44,6 +44,7 @@ function App() {
         <Route path="/products/shop" element={<ShopPage />} />
         <Route path="/products/new" element={<NewArrivalPage />} />
         <Route path="/products/quickbuy" element={<QuickBuyPage />} />
+        <Route path="/products/quickbuy/checkout" element={<CheckoutPage />} />
         <Route path="/collections/all" element={<AllCollectionPage />} />
         <Route path="/collection/:product_id" element={<CollecctionDetail />} />
         <Route path="/cart" element={<CartPage />} />

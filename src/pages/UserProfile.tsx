@@ -175,7 +175,9 @@ export default function UserProfile() {
   return (
     <div>
       <Navbar />
-      {user ? (
+      {userDetailLoading ? (
+        <Loading />
+      ) : user ? (
         <section className="p-3 md:px-24 md:py-12">
           {userDetailLoading ? (
             ""

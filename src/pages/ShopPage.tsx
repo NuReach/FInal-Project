@@ -62,7 +62,7 @@ export default function ShopPage() {
           <Loading />
         ) : (
           <>
-            <div className="flex flex-wrap justify-between items-center gap-3 mt-3">
+            <div className="flex flex-wrap justify-normal lg:justify-between items-center p-3 gap-3 mt-3">
               {categories.map((item, i) => (
                 <Link
                   key={i}
@@ -71,8 +71,8 @@ export default function ShopPage() {
                   <Button
                     className={`${
                       category === item
-                        ? "bg-[#A8BBA3] text-xs text-white"
-                        : "text-xs"
+                        ? "bg-[#A8BBA3] text-xs text-white w-full"
+                        : "text-xs w-full"
                     }`}
                   >
                     {item}

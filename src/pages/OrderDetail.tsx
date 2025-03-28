@@ -369,7 +369,7 @@ const OrderDetail = () => {
                   </Form>
                 </div>
                 <div className="w-full bg-white p-3 md:p-9 border rounded-lg text-xs md:text-lg">
-                  <p>Seller : {group.seller_name}</p>
+                  <p>Seller : {group.seller.name}</p>
                   <div className=" ">
                     {group.order_items.map((item: CartItem) => (
                       <div

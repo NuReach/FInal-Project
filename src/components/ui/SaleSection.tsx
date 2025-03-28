@@ -1,15 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import Heading from "./Heading";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useAuth from "../../service/useAuth";
 import supabase from "../../supabaseClient";
 import { useState } from "react";
 import { Button } from "./button";
 import { Cart } from "../../Schema";
+import { toast } from "react-toastify";
 
-export const HistorySection: React.FC = () => {
+export const SaleSection: React.FC = () => {
   const { data: auth } = useAuth();
   const user_id = auth?.user?.id;
+  const queryClient = useQueryClient();
 
   const [page, setPage] = useState(1);
   const limit = 6;
@@ -18,13 +20,13 @@ export const HistorySection: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: ordersUser, isLoading: orderLoading } = useQuery({
-    queryKey: ["orders", user_id, page],
+    queryKey: ["sales", user_id, page],
     queryFn: async () => {
       // Fetch orders first
       const { data: orders, error: ordersError } = await supabase
         .from("orders")
         .select(`*, order_items(*, products(*)), coupons(*)`)
-        .eq("user_id", user_id)
+        .eq("seller_id", user_id)
         .order("order_date", { ascending: false })
         .range(offset, offset + limit - 1);
 
@@ -73,6 +75,8 @@ export const HistorySection: React.FC = () => {
     },
   });
 
+  console.log(ordersUser);
+
   const { data: orderCount } = useQuery({
     queryKey: ["ordersCount", user_id],
     queryFn: async () => {
@@ -82,6 +86,7 @@ export const HistorySection: React.FC = () => {
         .eq("user_id", user_id);
 
       if (error) throw new Error(error.message);
+
       return count || 0;
     },
   });
@@ -93,23 +98,6 @@ export const HistorySection: React.FC = () => {
     return date.toLocaleString();
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "pending":
-        return "bg-yellow-500 text-white";
-      case "confirmed":
-        return "bg-blue-500 text-white";
-      case "deliverying":
-        return "bg-orange-500 text-white";
-      case "delivered":
-        return "bg-green-500 text-white";
-      case "canceled":
-        return "bg-red-500 text-white";
-      default:
-        return "bg-gray-500 text-white";
-    }
-  };
-
   const handlePageDetail = async (group: Cart) => {
     console.log(group);
     navigate("/dashboard/orderDetail", { state: { group } });
@@ -118,7 +106,7 @@ export const HistorySection: React.FC = () => {
   return (
     <div className="mt-6">
       <div className="flex gap-3 items-center">
-        <Heading text="Orders" className="text-[#A8BBA3]" />
+        <Heading text="Sales" className="text-[#A8BBA3]" />
         <Link
           className="bg-[#A8BBA3] px-6 py-2 rounded-lg text-xs text-white"
           to={`/transaction/all`}
@@ -142,7 +130,7 @@ export const HistorySection: React.FC = () => {
                   <th className="p-2 border">No</th>
                   <th className="p-2 border">Total</th>
                   <th className="p-2 border">Discount</th>
-                  <th className="p-2 border">Seller</th>
+                  <th className="p-2 border">Buyer</th>
                   <th className="p-2 border">Status</th>
                   <th className="p-2 border">Date</th>
                   <th className="p-2 border">Edit</th>
@@ -156,18 +144,30 @@ export const HistorySection: React.FC = () => {
                     <td className="p-2 border">{item.discount}</td>
                     <Link
                       target="_blank"
-                      to={`/user/profile/${item.seller.user_id}`}
+                      to={`/user/profile/${item.buyer.user_id}`}
                     >
-                      <td className="p-2 ">{item.seller.name}</td>
+                      <td className="p-2 ">{item.buyer.name}</td>
                     </Link>
                     <td className="p-2 border capitalize">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
-                          item.order_status
-                        )}`}
+                      <select
+                        value={item.order_status}
+                        onChange={async (e) => {
+                          const { data, error } = await supabase
+                            .from("orders") // Ensure 'orders' is the correct table name
+                            .update({ order_status: e.target.value })
+                            .eq("id", item.id);
+                          if (error) throw new Error(error.message);
+                          toast.success("Update Status Succesfully");
+                          queryClient.invalidateQueries({
+                            queryKey: ["sales"],
+                          });
+                          console.log(data);
+                        }}
                       >
-                        {item.order_status}
-                      </span>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Canceled">Canceled</option>
+                      </select>
                     </td>
                     <th className="p-2 border">
                       {formatDateTime(item.created_at)}

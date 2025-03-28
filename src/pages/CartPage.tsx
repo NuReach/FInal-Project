@@ -75,6 +75,8 @@ const Cardpage = () => {
     },
   });
 
+  console.log(cart_items);
+
   const handleCheckOut = async (group: Cart) => {
     console.log(group);
     navigate("/checkout", { state: { group } });

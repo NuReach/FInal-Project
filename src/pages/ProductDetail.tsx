@@ -111,23 +111,23 @@ export default function ProductDetail() {
           <div className="flex gap-4 p-3 flex-col md:flex-row">
             <div className="grid grid-cols-3 gap-3 md:flex md:flex-col  ">
               <img
-                src={product.product_images[0].image_url}
+                src={product.product_images[0]?.image_url}
                 alt="Thumbnail 1"
                 className=" w-full md:w-32 md:h-32 object-cover rounded-lg"
               />
               <img
-                src={product.product_images[1].image_url}
+                src={product.product_images[1]?.image_url}
                 alt="Thumbnail 2"
                 className=" w-full md:w-32 mdh-32 object-cover rounded-lg"
               />
               <img
-                src={product.product_images[2].image_url}
+                src={product.product_images[2]?.image_url}
                 alt="Thumbnail 3"
                 className=" w-full md:w-32 mdh-32 object-cover rounded-lg"
               />
             </div>
             <img
-              src={product.image_url}
+              src={product?.image_url}
               alt={product.id}
               className=" w-full md:w-96 rounded-lg object-cover"
             />
@@ -163,7 +163,7 @@ export default function ProductDetail() {
               <img
                 src={product.user_roles[0].image_url}
                 alt="User"
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full object-cover"
               />
               <Link to={`/user/profile/${product.user_roles[0].user_id}`}>
                 <div>

@@ -203,6 +203,14 @@ export const categories = [
   "Furniture",
 ];
 
+export const orderStatuses = [
+  "Pending",
+  "Confirmed",
+  "Delivering",
+  "Delivered",
+  "Canceled",
+];
+
 export const phnomPenhDistricts = [
   "Daun Penh",
   "Chamkarmon",

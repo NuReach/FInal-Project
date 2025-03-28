@@ -158,7 +158,7 @@ const CheckoutPage = () => {
               location: values.location,
               note: values.note,
               payment_status: "Completed",
-              order_status: "pending",
+              order_status: "Pending",
             },
           ])
           .select()
@@ -232,6 +232,8 @@ const CheckoutPage = () => {
       discount: discount ?? 0,
     });
   }
+
+  console.log(group);
 
   return (
     <div>
