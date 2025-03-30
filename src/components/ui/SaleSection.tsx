@@ -107,12 +107,6 @@ export const SaleSection: React.FC = () => {
     <div className="mt-6">
       <div className="flex gap-3 items-center">
         <Heading text="Sales" className="text-[#A8BBA3]" />
-        <Link
-          className="bg-[#A8BBA3] px-6 py-2 rounded-lg text-xs text-white"
-          to={`/transaction/all`}
-        >
-          All
-        </Link>
       </div>
       {orderLoading ? (
         <div className="animate-pulse">
@@ -120,7 +114,7 @@ export const SaleSection: React.FC = () => {
           <div className="h-6 bg-gray-300 rounded w-1/2"></div>
         </div>
       ) : ordersUser?.length == 0 ? (
-        <p className="text-gray-500 pl-5">No transactions found.</p>
+        <p className="text-gray-500 pl-5">No One Buy Your Items Yet.</p>
       ) : (
         <div>
           <div className="overflow-x-auto rounded-lg">
@@ -149,25 +143,178 @@ export const SaleSection: React.FC = () => {
                       <td className="p-2 ">{item.buyer.name}</td>
                     </Link>
                     <td className="p-2 border capitalize">
-                      <select
-                        value={item.order_status}
-                        onChange={async (e) => {
-                          const { data, error } = await supabase
-                            .from("orders") // Ensure 'orders' is the correct table name
-                            .update({ order_status: e.target.value })
-                            .eq("id", item.id);
-                          if (error) throw new Error(error.message);
-                          toast.success("Update Status Succesfully");
-                          queryClient.invalidateQueries({
-                            queryKey: ["sales"],
-                          });
-                          console.log(data);
-                        }}
-                      >
-                        <option value="Confirmed">Confirmed</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Canceled">Canceled</option>
-                      </select>
+                      {item.order_status == "Completed" ? (
+                        <button className=" bg-[#A8BBA3] text-white text-xs py-2 px-6 rounded-lg">
+                          Completed
+                        </button>
+                      ) : item.order_status == "Canceled" ? (
+                        <button className=" bg-red-600 text-white text-xs py-2 px-6 rounded-lg">
+                          Canceled
+                        </button>
+                      ) : (
+                        <select
+                          value={item.order_status}
+                          onChange={async (e) => {
+                            if (
+                              !item?.id ||
+                              !item?.total_amount ||
+                              !item?.buyer?.user_id ||
+                              !item?.order_items
+                            ) {
+                              console.error("Invalid order data");
+                              return;
+                            }
+
+                            const newStatus = e.target.value;
+
+                            // Update order status
+                            const { data: orderData, error: orderError } =
+                              await supabase
+                                .from("orders")
+                                .update({ order_status: newStatus })
+                                .eq("id", item.id);
+
+                            if (orderError) {
+                              console.error(orderError.message);
+                              toast.error("Failed to update order status");
+                              return;
+                            }
+
+                            console.log("Order status updated:", orderData);
+                            toast.success("Update Status Successfully");
+
+                            // If canceled, restore stock and refund buyer
+                            if (newStatus === "Canceled") {
+                              // Restore stock for each product
+                              for (const orderItem of item.order_items) {
+                                const {
+                                  data: productData,
+                                  error: productError,
+                                } = await supabase
+                                  .from("products")
+                                  .select("stock")
+                                  .eq("id", orderItem.product_id)
+                                  .single();
+
+                                if (productError) {
+                                  console.error(
+                                    `Failed to fetch stock for product ${orderItem.product_id}:`,
+                                    productError.message
+                                  );
+                                  toast.error(
+                                    "Failed to restore product stock"
+                                  );
+                                  return;
+                                }
+
+                                const newStock =
+                                  (productData?.stock || 0) +
+                                  orderItem.quantity;
+
+                                const { error: stockUpdateError } =
+                                  await supabase
+                                    .from("products")
+                                    .update({ stock: newStock })
+                                    .eq("id", orderItem.product_id);
+
+                                if (stockUpdateError) {
+                                  console.error(
+                                    `Failed to update stock for product ${orderItem.product_id}:`,
+                                    stockUpdateError.message
+                                  );
+                                  toast.error(
+                                    "Failed to restore product stock"
+                                  );
+                                  return;
+                                }
+
+                                console.log(
+                                  `Stock restored for product ${orderItem.product_id}:`,
+                                  newStock
+                                );
+                              }
+
+                              // Refund amount to buyer's wallet
+                              const { data: walletData, error: walletError } =
+                                await supabase
+                                  .from("wallets")
+                                  .select("balance")
+                                  .eq("user_id", item.buyer.user_id)
+                                  .single();
+
+                              if (walletError) {
+                                console.error(walletError.message);
+                                toast.error("Failed to fetch buyer's wallet");
+                                return;
+                              }
+
+                              const newBalance =
+                                (walletData?.balance || 0) + item.total_amount;
+
+                              const { error: walletUpdateError } =
+                                await supabase
+                                  .from("wallets")
+                                  .update({ balance: newBalance })
+                                  .eq("user_id", item.buyer.user_id);
+
+                              if (walletUpdateError) {
+                                console.error(walletUpdateError.message);
+                                toast.error("Failed to refund buyer");
+                                return;
+                              }
+
+                              console.log("Buyer refunded:", newBalance);
+                              toast.success("Buyer refunded successfully");
+                            }
+
+                            queryClient.invalidateQueries({
+                              queryKey: ["sales"],
+                            });
+                          }}
+                        >
+                          <option value="Pending" hidden>
+                            Pending
+                          </option>
+                          <option
+                            value="Confirmed"
+                            hidden={
+                              item.order_status == "Pickup" ||
+                              item.order_status == "Confirmed" ||
+                              item.order_status == "Delivering"
+                            }
+                          >
+                            Confirmed
+                          </option>
+                          <option
+                            value="Pickup"
+                            hidden={
+                              item.order_status == "Pending" ||
+                              item.order_status == "Confirmed" ||
+                              item.order_status == "Pickup" ||
+                              item.order_status == "Delivering"
+                            }
+                          >
+                            On the way to pick up
+                          </option>
+                          <option
+                            value="Delivering"
+                            hidden={
+                              item.order_status == "Pending" ||
+                              item.order_status == "Confirmed" ||
+                              item.order_status == "Pickup" ||
+                              item.order_status == "Delivering"
+                            }
+                          >
+                            Deliver to buyer
+                          </option>
+                          <option
+                            value="Canceled"
+                            hidden={item.order_status != "Pending"}
+                          >
+                            Canceled
+                          </option>
+                        </select>
+                      )}
                     </td>
                     <th className="p-2 border">
                       {formatDateTime(item.created_at)}

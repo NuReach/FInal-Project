@@ -99,10 +99,12 @@ export const HistorySection: React.FC = () => {
         return "bg-yellow-500 text-white";
       case "confirmed":
         return "bg-blue-500 text-white";
-      case "deliverying":
+      case "pickup":
         return "bg-orange-500 text-white";
-      case "delivered":
+      case "delivering":
         return "bg-green-500 text-white";
+      case "completed":
+        return "bg-green-600 text-white";
       case "canceled":
         return "bg-red-500 text-white";
       default:
@@ -119,12 +121,6 @@ export const HistorySection: React.FC = () => {
     <div className="mt-6">
       <div className="flex gap-3 items-center">
         <Heading text="Orders" className="text-[#A8BBA3]" />
-        <Link
-          className="bg-[#A8BBA3] px-6 py-2 rounded-lg text-xs text-white"
-          to={`/transaction/all`}
-        >
-          All
-        </Link>
       </div>
       {orderLoading ? (
         <div className="animate-pulse">
@@ -166,7 +162,13 @@ export const HistorySection: React.FC = () => {
                           item.order_status
                         )}`}
                       >
-                        {item.order_status}
+                        {item.order_status == "Confirmed"
+                          ? "Waiting Delivery to pick up"
+                          : item.order_status == "Delivering"
+                          ? "Deliver is delivering to you"
+                          : item.order_status == "Pickup"
+                          ? "Delivery on the way to pick up"
+                          : item.order_status}
                       </span>
                     </td>
                     <th className="p-2 border">

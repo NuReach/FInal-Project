@@ -321,12 +321,18 @@ export default function QuickBuyPage() {
                   </p>
                 </div>
               </div>
-              <Button
-                onClick={handleCheckout}
-                className="bg-red-600 text-white"
-              >
-                Buy
-              </Button>
+              {auth &&
+              data &&
+              auth.user?.id == data[currentIndex].user_roles.user_id ? (
+                ""
+              ) : (
+                <Button
+                  onClick={handleCheckout}
+                  className="bg-red-600 text-white"
+                >
+                  Buy
+                </Button>
+              )}
             </div>
           </div>
         )}

@@ -20,6 +20,7 @@ import AllCollectionPage from "./pages/AllCollectionPage";
 import ShopPage from "./pages/ShopPage";
 import NewArrivalPage from "./pages/NewArrivalPage";
 import QuickBuyPage from "./pages/QuickBuyPage";
+import DeliveryPage from "./pages/DeliveryPage";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
         <Route path="/collection/:product_id" element={<CollecctionDetail />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/delivery" element={<DeliveryPage />} />
         <Route path="/user/profile/:acc_id" element={<UserProfile />} />
         <Route path="/dashboard/products" element={<DashboardProductPage />} />
         <Route

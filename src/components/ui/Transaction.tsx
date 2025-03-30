@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import supabase from "../../supabaseClient";
 import Heading from "./Heading";
-import { Link } from "react-router-dom";
 import useAuth from "../../service/useAuth";
 import { useState } from "react";
 
@@ -52,12 +51,6 @@ export const TransactionSection: React.FC = () => {
     <div className="mt-6">
       <div className="flex gap-3 items-center">
         <Heading text="Transaction" className="text-[#A8BBA3]" />
-        <Link
-          className="bg-[#A8BBA3] px-6 py-2 rounded-lg text-xs text-white"
-          to={`/transaction/all`}
-        >
-          All
-        </Link>
       </div>
       {isLoading ? (
         <div className="animate-pulse">
