@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "./button";
 import Description from "./Description";
 import Heading from "./Heading";
@@ -14,9 +15,14 @@ export default function Carousel() {
           className="text-gray-600 mt-3 w-full md:max-w-96"
           text="Users can purchase goods using a unique point-based system, where 1 dollar is equivalent to 100 EcoCoins."
         />
-        <Button className="greenBgColor rounded-full mt-3 px-9 text-xs w-36">
-          Shop Now
-        </Button>
+        <Link
+          to={`products/shop`}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          <Button className="greenBgColor rounded-full mt-3 px-9 text-xs w-36">
+            Shop Now
+          </Button>
+        </Link>
         <div className="flex py-6 gap-9 flex-wrap">
           <Stat number="200" label="Brands" />
           <Stat number="2,000" label="Secondhand Products" />

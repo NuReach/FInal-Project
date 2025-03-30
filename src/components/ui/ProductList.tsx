@@ -33,7 +33,10 @@ export const ProductList: React.FC<ProductListProps> = ({
           <ProductCard key={index} product={product} />
         ))}
       </div>
-      <Link to={`/products/all`}>
+      <Link
+        to={`/products/all`}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      >
         <button className="border p-3 rounded-full text-xs px-9 my-6">
           View All
         </button>

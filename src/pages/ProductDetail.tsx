@@ -165,7 +165,10 @@ export default function ProductDetail() {
                 alt="User"
                 className="w-10 h-10 rounded-full object-cover"
               />
-              <Link to={`/user/profile/${product.user_roles[0].user_id}`}>
+              <Link
+                to={`/user/profile/${product.user_roles[0].user_id}`}
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              >
                 <div>
                   <p className="font-semibold">
                     {product.user_roles[0].name}{" "}

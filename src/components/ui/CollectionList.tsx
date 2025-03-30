@@ -35,6 +35,7 @@ export const CollectionList: React.FC<CollectionListProps> = ({
       </div>
       <Link
         to={`/collections/all`}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className="border p-3 rounded-full text-xs px-9 my-6"
       >
         View All
