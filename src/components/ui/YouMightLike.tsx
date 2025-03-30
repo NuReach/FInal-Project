@@ -4,7 +4,7 @@ import Heading from "./Heading";
 import { ProductCard } from "./ProductCard";
 import { Product } from "../../Schema";
 import supabase from "../../supabaseClient";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 interface YouMightLikeProps {
   product_id: string;
@@ -38,6 +38,9 @@ const YouMightLike: React.FC<YouMightLikeProps> = ({
     },
   });
 
+  const { acc_id } = useParams();
+  console.log(acc_id);
+
   if (isLoading) return <div>""</div>;
   if (error) return <div>Error loading related products</div>;
   if (!products || products.length === 0) return null;
@@ -50,7 +53,10 @@ const YouMightLike: React.FC<YouMightLikeProps> = ({
           <ProductCard key={index} product={product} />
         ))}
       </div>
-      <Link to={`/products/all`}>
+      <Link
+        to={acc_id ? `/products/all/${acc_id}` : `/products/all/data`}
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      >
         <button className="border p-3 rounded-full text-xs px-9 my-6">
           View All
         </button>

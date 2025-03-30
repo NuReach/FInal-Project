@@ -41,12 +41,15 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/product/:product_id" element={<ProductDetail />} />
-        <Route path="/products/all" element={<AllProductPage />} />
+        <Route path="/products/all/:acc_id" element={<AllProductPage />} />
         <Route path="/products/shop" element={<ShopPage />} />
         <Route path="/products/new" element={<NewArrivalPage />} />
         <Route path="/products/quickbuy" element={<QuickBuyPage />} />
         <Route path="/products/quickbuy/checkout" element={<CheckoutPage />} />
-        <Route path="/collections/all" element={<AllCollectionPage />} />
+        <Route
+          path="/collections/all/:acc_id"
+          element={<AllCollectionPage />}
+        />
         <Route path="/collection/:product_id" element={<CollecctionDetail />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />

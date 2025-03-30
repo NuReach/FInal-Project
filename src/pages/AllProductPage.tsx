@@ -6,12 +6,13 @@ import supabase from "../supabaseClient";
 import Loading from "../components/ui/Loading";
 import { ProductCard } from "../components/ui/ProductCard";
 import Heading from "../components/ui/Heading";
+import { useParams } from "react-router-dom";
 
-const fetchProducts = async (page: number, limit: number) => {
+const fetchProducts = async (page: number, limit: number, acc_id?: string) => {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  const { data, error, count } = await supabase
+  let query = supabase
     .from("products")
     .select("*", { count: "exact" })
     .eq("status", "Available")
@@ -19,6 +20,13 @@ const fetchProducts = async (page: number, limit: number) => {
     .gt("stock", 0)
     .order("created_at", { ascending: false })
     .range(from, to);
+
+  // Ensure acc_id is a valid string before using it
+  if (acc_id && acc_id !== "data") {
+    query = query.eq("user_id", acc_id);
+  }
+
+  const { data, error, count } = await query;
 
   if (error) {
     throw new Error(error.message);
@@ -30,10 +38,11 @@ const fetchProducts = async (page: number, limit: number) => {
 export default function AllProductPage() {
   const [page, setPage] = useState(1);
   const limit = 12;
+  const { acc_id } = useParams();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["products", page],
-    queryFn: () => fetchProducts(page, limit),
+    queryKey: ["products", page, acc_id],
+    queryFn: () => fetchProducts(page, limit, acc_id),
   });
 
   const totalPages = data ? Math.ceil(data.total / limit) : 1;

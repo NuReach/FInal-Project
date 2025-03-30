@@ -2,7 +2,7 @@ import React from "react";
 import Heading from "./Heading";
 import { ProductCard } from "./ProductCard";
 import { Product } from "../../Schema";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 interface ProductListProps {
   title: string;
@@ -15,6 +15,7 @@ export const ProductList: React.FC<ProductListProps> = ({
   const location = useLocation();
   const pathSegments = location.pathname.split("/");
   const firstSegment = pathSegments[1];
+  const { acc_id } = useParams();
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="flex gap-3 items-center">
@@ -34,7 +35,7 @@ export const ProductList: React.FC<ProductListProps> = ({
         ))}
       </div>
       <Link
-        to={`/products/all`}
+        to={acc_id ? `/products/all/${acc_id}` : `/products/all/data`}
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       >
         <button className="border p-3 rounded-full text-xs px-9 my-6">

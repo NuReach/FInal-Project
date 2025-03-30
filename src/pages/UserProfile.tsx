@@ -103,7 +103,8 @@ export default function UserProfile() {
         .from("products")
         .select("id", { count: "exact" })
         .eq("user_id", acc_id)
-        .eq("status", "available");
+        .eq("type", "Product")
+        .eq("status", "Available");
       if (error) throw new Error(error.message);
       return count;
     },
@@ -135,19 +136,19 @@ export default function UserProfile() {
   });
 
   const { data: successRate } = useQuery({
-    queryKey: ["successRate", user?.id],
+    queryKey: ["successRate", acc_id],
     queryFn: async () => {
-      if (!user) return null;
-      // Count all orders for the user
       const { count: totalOrders, error: totalError } = await supabase
         .from("orders")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user?.id);
+        .select("*", { count: "exact" })
+        .eq("seller_id", acc_id);
 
       if (totalError) {
         console.error("Error fetching total orders:", totalError);
         return 0;
       }
+
+      console.log("Count", totalOrders);
 
       if (totalOrders === 0) return 0; // Avoid division by zero
       const total = totalOrders ?? 0;
@@ -156,7 +157,7 @@ export default function UserProfile() {
       const { count: completedOrders, error: completedError } = await supabase
         .from("orders")
         .select("*", { count: "exact", head: true })
-        .eq("user_id", user?.id)
+        .eq("seller_id", acc_id)
         .eq("order_status", "Completed");
 
       if (completedError) {
