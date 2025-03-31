@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import SingUp from "./pages/SingUp";
-import SignInPage from "./pages/SignIn";
 import ProductDetail from "./pages/ProductDetail";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
@@ -21,6 +20,8 @@ import ShopPage from "./pages/ShopPage";
 import NewArrivalPage from "./pages/NewArrivalPage";
 import QuickBuyPage from "./pages/QuickBuyPage";
 import DeliveryPage from "./pages/DeliveryPage";
+import SignUpPageDelivery from "./pages/DeliverySignUp";
+import SignInPageDelivery from "./pages/DeliverySignIn";
 
 function App() {
   return (
@@ -72,7 +73,8 @@ function App() {
         <Route path="/add_coint" element={<AddCoinPage />} />
         <Route path="/dashboard/:user_id" element={<DashboardPage />} />
         <Route path="/signup" element={<SingUp />} />
-        <Route path="/signin" element={<SignInPage />} />
+        <Route path="/delivery/signup" element={<SignUpPageDelivery />} />
+        <Route path="/delivery/signin" element={<SignInPageDelivery />} />
       </Routes>
     </Router>
   );

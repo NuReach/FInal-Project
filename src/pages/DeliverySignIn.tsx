@@ -24,7 +24,7 @@ const formSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-export default function SignInPage() {
+export default function SignInPageDelivery() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -56,7 +56,7 @@ export default function SignInPage() {
       return data;
     },
     onSuccess: () => {
-      navigate(`/`); // Redirect to dashboard after login
+      navigate(`/delivery`); // Redirect to dashboard after login
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
       toast.success("Sign in successful!");
     },
@@ -75,7 +75,7 @@ export default function SignInPage() {
   return (
     <div className="flex h-screen">
       <div className="hidden lg:flex flex-col greenBgColor justify-center items-start px-24 w-full">
-        <Heading text="Ecoswap" />
+        <Heading text="EcoDelivery" />
         <div className="w-[600px] mt-3">
           <Description
             text="FIND PRODUCTS THAT MATCHES YOUR STYLE

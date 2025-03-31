@@ -44,7 +44,7 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
-export default function SignUpPage() {
+export default function SignUpPageDelivery() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -103,7 +103,7 @@ export default function SignUpPage() {
       const { error: roleError } = await supabase.from("user_roles").insert([
         {
           user_id: user.id,
-          role: "user",
+          role: "delivery",
           name: values.name,
           phone: values.phone,
           address: values.address,
@@ -117,7 +117,7 @@ export default function SignUpPage() {
       return { user };
     },
     onSuccess: () => {
-      navigate(`/signin`);
+      navigate(`/delivery/signin`);
       toast.success("You registered successfully");
     },
     onError: (error) => {
@@ -132,11 +132,8 @@ export default function SignUpPage() {
   return (
     <div className="flex ">
       <div className="hidden lg:flex flex-col greenBgColor justify-center items-start px-24 w-full ">
-        <Heading text="Ecoswap" />
-        <Description
-          text="FIND PRODUCTS THAT MATCHES YOUR STYLE
-Users can purchase goods using a unique point-based system, where 1 dollar is equivalent to 100 EcoCoins."
-        />
+        <Heading text="EcoDelivery" />
+        <Description text="FIND PRODUCTS THAT MATCHES YOUR STYLE Users can purchase goods using a unique point-based system, where 1 dollar is equivalent to 100 EcoCoins." />
       </div>
       <div className="w-[800px] flex flex-col justify-between">
         <Form {...form}>
@@ -187,7 +184,7 @@ Users can purchase goods using a unique point-based system, where 1 dollar is eq
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>District</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -295,7 +292,7 @@ Users can purchase goods using a unique point-based system, where 1 dollar is eq
 
             <div className="text-xs flex gap-3">
               <p>Already have an account?</p>
-              <Link className="blueColor" to={`/signin`}>
+              <Link className="blueColor" to={`/delivery/signin`}>
                 Sign in now
               </Link>
             </div>
