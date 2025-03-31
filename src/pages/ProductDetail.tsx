@@ -181,8 +181,6 @@ export default function ProductDetail() {
               </Link>
             </div>
             {auth && auth.user?.id == product.user_roles[0].user_id ? (
-              ""
-            ) : (
               <button
                 disabled={isPending || !auth?.user}
                 onClick={handleAddToCart}
@@ -190,6 +188,12 @@ export default function ProductDetail() {
               >
                 Add to Cart
               </button>
+            ) : (
+              <Link to={`/signup`}>
+                <button className="mt-6 bg-[#A8BBA3] text-white py-2 text-sm  px-12 rounded-full">
+                  SignUp
+                </button>
+              </Link>
             )}
           </div>
         </div>

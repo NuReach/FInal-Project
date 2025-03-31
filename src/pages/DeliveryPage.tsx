@@ -192,7 +192,7 @@ export default function DeliveryPage() {
           </div>
           <div className="bg-[#A8BBA3] text-white text-xs px-2 py-1 my-3">
             <p className="text-sm font-bold mt-1">
-              Orders in {user_role.address} District
+              Orders in {user_role?.address} District
             </p>
           </div>
           <div className="flex flex-wrap justify-between items-center gap-3">

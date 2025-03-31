@@ -23,6 +23,7 @@ import DeliveryPage from "./pages/DeliveryPage";
 import SignUpPageDelivery from "./pages/DeliverySignUp";
 import SignInPageDelivery from "./pages/DeliverySignIn";
 import SignInPage from "./pages/SignIn";
+import ProductsSearch from "./pages/ProductsSearch";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Route path="/product/:product_id" element={<ProductDetail />} />
         <Route path="/products/all/:acc_id" element={<AllProductPage />} />
         <Route path="/products/shop" element={<ShopPage />} />
+        <Route path="/products/search" element={<ProductsSearch />} />
         <Route path="/products/new" element={<NewArrivalPage />} />
         <Route path="/products/quickbuy" element={<QuickBuyPage />} />
         <Route path="/products/quickbuy/checkout" element={<CheckoutPage />} />

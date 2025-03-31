@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Footer = () => {
   return (
     <footer className="bg-gray-100 text-gray-700 md:p-12 relative mt-3 md:mt-24">
@@ -8,12 +10,14 @@ const Footer = () => {
               PROMOTION
             </h2>
             <h2 className="text-lg md:text-3xl font-bold text-white">
-              EXCHANGE 10$ GOT 1500 COINS
+              Use Promote Code NewUser To Get 15% OFF
             </h2>
           </div>
-          <button className="mt-4 md:mt-0 bg-white text-gray-900 py-2 rounded-full shadow text-xs px-9">
-            CLICK HERE TO EXCHANGE
-          </button>
+          <Link to={`add_coint`}>
+            <button className="mt-4 md:mt-0 bg-white text-gray-900 py-2 rounded-full shadow text-xs px-9">
+              CLICK HERE TO EXCHANGE
+            </button>
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
           <div>

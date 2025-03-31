@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Heading2 from "./Heading2";
 import { Button } from "./button";
 import useAuth from "../../service/useAuth";
@@ -11,6 +11,14 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { data: auth } = useAuth();
   const user_id = auth?.user?.id;
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" && search.trim() !== "") {
+      navigate(`/products/search?search=${encodeURIComponent(search)}`);
+    }
+  };
 
   const { mutateAsync: signOutMutation } = useSignOut();
 
@@ -75,6 +83,9 @@ export default function Navbar() {
             type="text"
             placeholder="Search for product..."
             className="bg-transparent outline-none w-full text-gray-700"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
         </div>
         <div className="flex gap-3 relative">
@@ -176,10 +187,18 @@ export default function Navbar() {
             placeholder="Search..."
             className="bg-gray-100 p-2 rounded-lg text-sm"
           />
-          <button>Shop</button>
-          <button>Quick Buy</button>
-          <button>New Arrival</button>
-          <button>Category</button>
+          <Link to={`/products/shop`}>
+            {" "}
+            <button>Shop</button>
+          </Link>
+          <Link to={`/products/quickbuy`}>
+            {" "}
+            <button>Quick Buy</button>
+          </Link>
+          <Link to={`/products/new`}>
+            <button>New Arrival</button>
+          </Link>
+
           <div className="flex flex-col justify-between gap-3 mt-3">
             <Link to={`/user/profile/${auth?.user?.id}`} className="flex gap-2">
               <Button className="w-full">Profile</Button>
