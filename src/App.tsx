@@ -22,6 +22,7 @@ import QuickBuyPage from "./pages/QuickBuyPage";
 import DeliveryPage from "./pages/DeliveryPage";
 import SignUpPageDelivery from "./pages/DeliverySignUp";
 import SignInPageDelivery from "./pages/DeliverySignIn";
+import SignInPage from "./pages/SignIn";
 
 function App() {
   return (
@@ -73,6 +74,7 @@ function App() {
         <Route path="/add_coint" element={<AddCoinPage />} />
         <Route path="/dashboard/:user_id" element={<DashboardPage />} />
         <Route path="/signup" element={<SingUp />} />
+        <Route path="/signin" element={<SignInPage />} />
         <Route path="/delivery/signup" element={<SignUpPageDelivery />} />
         <Route path="/delivery/signin" element={<SignInPageDelivery />} />
       </Routes>
